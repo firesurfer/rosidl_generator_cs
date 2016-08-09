@@ -21,20 +21,17 @@ namespace ROS2CSMessageGenerator
 
 		bool ClassWasFinalized = false;
 
-		public CsClassGenerator (string _Path, string _Package_xml_Path)
+		public CsClassGenerator (string _Path, string _PackageName)
 		{
 			FileReader = new StreamReader (_Path);
-			Console.WriteLine("Reading package file: "+ _Package_xml_Path);
-			XDocument doc = XDocument.Load (_Package_xml_Path);
-			Console.WriteLine (doc.ToString ());
-			var PackageName = doc.Root.Elements ("name");
-			Namespace = PackageName.ToArray () [0].Value;
+
+			Namespace = _PackageName;
 			Console.WriteLine ("Using packagename as namespace: " +Namespace);
 			Name = Path.GetFileName (_Path);
 			Name = Name.Replace (Path.GetExtension (_Path), "");
 			Console.WriteLine ("Using message file name as message name: " + Name);
 
-			Console.WriteLine ("Preparing class");
+			//Console.WriteLine ("Preparing class");
 
 			ClassString.AppendLine ("using System;");
 			ClassString.AppendLine ("using ROS2Sharp;");
@@ -62,7 +59,7 @@ namespace ROS2CSMessageGenerator
 			while (!FileReader.EndOfStream) 
 			{
 				string line = FileReader.ReadLine ();
-				Console.WriteLine (line);
+				//Console.WriteLine (line);
 
 				if (line.Trim () != "") {
 					string[] splitted = line.Split (new string[]{ " " }, StringSplitOptions.RemoveEmptyEntries);
@@ -72,7 +69,7 @@ namespace ROS2CSMessageGenerator
 					else if (IsPrimitiveType (splitted [0])) {
 						string csType = GetPrimitiveType (splitted [0]);
 						string memberName = splitted [1];
-						Console.WriteLine ("Adding member of type: " + csType + " with name: " + memberName);
+						//Console.WriteLine ("Adding member of type: " + csType + " with name: " + memberName);
 						Members.Add ("public "+ csType + " " + memberName + ";");
 					}
 							
@@ -97,6 +94,8 @@ namespace ROS2CSMessageGenerator
 			switch (primitiveType) {
 			case "bool":
 				return "bool";
+			case "byte":
+				return "byte";
 			case "int8":
 				return "Byte";
 			case "uint8":
@@ -109,6 +108,10 @@ namespace ROS2CSMessageGenerator
 				return "Int32";
 			case "uint32":
 				return "UInt32";
+			case "int64":
+				return "Int64";
+			case "uint64":
+				return "UInt64";
 			case "float32":
 				return "float";
 			case "float64":
@@ -119,7 +122,7 @@ namespace ROS2CSMessageGenerator
 			default:
 				Console.WriteLine ("Error: couldn't parse specified primitive type: " + primitiveType);
 				return "";
-				break;
+
 			}
 
 

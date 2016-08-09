@@ -14,7 +14,7 @@ namespace ROS2CSMessageGenerator
 			Console.WriteLine ("This tool generates a C# assembly from ROS2 message definitions");
 			Console.WriteLine ("Usage: ");
 			Console.WriteLine ("  Parse message file and generate cs code:");
-			Console.WriteLine ("     mono ROS2CSMessageGenerator.exe -m <path to message file> <path to package.xml> <output path>");
+			Console.WriteLine ("     mono ROS2CSMessageGenerator.exe -m <path to message file> <package name> <output path>");
 			Console.WriteLine ("  Compile generated cs files to assembly:");
 			Console.WriteLine ("     mono ROS2CSMessageGenerator.exe -c <directory with cs files> <path to resulting assembly>");
 
@@ -31,13 +31,16 @@ namespace ROS2CSMessageGenerator
 					return;
 				}
 				string messageFile = args [1];
-				string packageXml = args [2];
+				string packageName = args [2];
 				string outputPath = args [3];
+				if (!Directory.Exists (outputPath))
+					Directory.CreateDirectory (outputPath);
+					
 				Console.WriteLine ("Parsing message file: " + messageFile);
-				CsClassGenerator generator = new CsClassGenerator (messageFile, packageXml);
+				CsClassGenerator generator = new CsClassGenerator (messageFile, packageName);
 				generator.Parse ();
 				generator.FinalizeClass ();
-				Console.WriteLine (generator.GetResultingClass ());
+				//Console.WriteLine (generator.GetResultingClass ());
 				System.IO.File.WriteAllText (Path.Combine (outputPath, generator.Name + "_msg.cs"), generator.GetResultingClass ());
 			} else if (args [0] == "-c") {
 				if (args.Length < 3) {

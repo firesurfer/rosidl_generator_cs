@@ -18,25 +18,34 @@ set(_output_path "${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cs/${PROJECT_NAME
 
 set(_generated_msg_sources "")
 set(_generated_srv_sources "")
+set(_message_targets "")
 foreach(_idl_file ${rosidl_generate_interfaces_cs_IDL_FILES})
   get_filename_component(_parent_folder "${_idl_file}" DIRECTORY)
   get_filename_component(_parent_folder "${_parent_folder}" NAME)
+  MESSAGE(${_output_path})
   get_filename_component(_msg_name "${_idl_file}" NAME_WE)
   get_filename_component(_extension "${_idl_file}" EXT)
   string_camel_case_to_lower_case_underscore("${_msg_name}" _header_name)
   
-  if(_extension STREQUAL ".msg")
-      list(APPEND _generated_msg_sources
-        "${_output_path}/${_parent_folder}/${_header_name}.cs"
-      )
-      ${BIN
-  elseif(_extension STREQUAL ".srv")
-    list(APPEND _generated_srv_sources
-        "${_output_path}/${_parent_folder}/${_header_name}.cs"
-      )
+  if(_extension STREQUAL ".msg" OR _extension STREQUAL ".srv")
+       add_custom_target(
+        "generate_cs_messages_${_msg_name}" ALL
+	COMMAND mono ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
+	COMMENT "Generating CS code for ${_msg_name}"
+	DEPENDS ros2cs_message_generator
+	VERBATIM
+	)
+	list(APPEND _message_targets "generate_cs_messages_${_msg_name}")
   else()
     list(REMOVE_ITEM rosidl_generate_interfaces_cs_IDL_FILES ${_idl_file})
   endif()
  
 endforeach()
-MESSAGE(${_generated_msg_sources})
+add_custom_target(
+    "compile_cs_messages" ALL
+    COMMAND mono ${rosidl_generator_cs_BIN} -c ${_output_path} ${_output_path}/${PROJECT_NAME}.dll
+    DEPENDS ${_message_targets}
+    COMMENT "Compiling generated CS Code for ${PROJECT_NAME}"
+    VERBATIM
+ )
+

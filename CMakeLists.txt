@@ -22,32 +22,32 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   set(message_files
-    "msg/Empty.msg"
-    "msg/Nested.msg"
+    #"msg/Empty.msg"
+    #"msg/Nested.msg"
     "msg/Primitives.msg"
-    "msg/Various.msg"
-    "msg/Bool.msg"
-    "msg/Byte.msg"
-    "msg/Char.msg"
-    "msg/Float32.msg"
-    "msg/Float64.msg"
-    "msg/Int8.msg"
-    "msg/Int16.msg"
-    "msg/Int32.msg"
-    "msg/Int64.msg"
-    "msg/Uint8.msg"
-    "msg/Uint16.msg"
-    "msg/Uint32.msg"
-    "msg/Uint64.msg"
-    "msg/PrimitiveValues.msg"
-    "msg/Strings.msg"
-    "msg/PrimitivesUnboundedArrays.msg"
-    "msg/PrimitivesBoundedArrays.msg"
-    "msg/PrimitivesStaticArrays.msg"
-    "msg/Telegram1.msg"
-    "msg/Telegram2.msg"
-    "msg/Wire.msg"
-    "msg/Constants.msg"
+    #"msg/Various.msg"
+    #"msg/Bool.msg"
+    #"msg/Byte.msg"
+    #"msg/Char.msg"
+    #"msg/Float32.msg"
+    #"msg/Float64.msg"
+    #"msg/Int8.msg"
+    #"msg/Int16.msg"
+    #"msg/Int32.msg"
+    #"msg/Int64.msg"
+    #"msg/Uint8.msg"
+    #"msg/Uint16.msg"
+    #"msg/Uint32.msg"
+    #"msg/Uint64.msg"
+    #"msg/PrimitiveValues.msg"
+    #"msg/Strings.msg"
+    #"msg/PrimitivesUnboundedArrays.msg"
+    #"msg/PrimitivesBoundedArrays.msg"
+    #"msg/PrimitivesStaticArrays.msg"
+    #"msg/Telegram1.msg"
+    #"msg/Telegram2.msg"
+    #"msg/Wire.msg"
+    #"msg/Constants.msg"
   )
 
   include(cmake/register_cs.cmake)
@@ -55,7 +55,7 @@ if(BUILD_TESTING)
   set(rosidl_generator_cs_LIBRARIES "${PROJECT_NAME}")
 
   rosidl_generator_cs_extras(
-    "${CMAKE_CURRENT_SOURCE_DIR}/bin/rosidl_generator_cs.exe"
+    "${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cs.exe"
   )
 
   rosidl_generate_interfaces(${PROJECT_NAME}_interfaces ${message_files}
