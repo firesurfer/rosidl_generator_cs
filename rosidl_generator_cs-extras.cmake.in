@@ -1,0 +1,6 @@
+# generated from rosidl_generator_c/rosidl_generator_c-extras.cmake
+
+include("${CMAKE_CURRENT_LIST_DIR}/register_cs.cmake")
+rosidl_generator_cs_extras(
+  "${rosidl_generator_cs_DIR}/../../../lib/rosidl_generator_cs/rosidl_generator_cs.exe"
+)

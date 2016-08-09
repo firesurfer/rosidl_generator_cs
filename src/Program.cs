@@ -1,0 +1,98 @@
+﻿using System;
+using System.IO;
+using System.CodeDom.Compiler;
+using Microsoft.CSharp;
+using System.Collections.Generic;
+using System.Reflection;
+namespace ROS2CSMessageGenerator
+{
+	class MainClass
+	{
+		public static void PrintHelp()
+		{
+			Console.WriteLine ("ROS2CSMessageGenerator version: "+ typeof(MainClass).Assembly.GetName().Version);
+			Console.WriteLine ("This tool generates a C# assembly from ROS2 message definitions");
+			Console.WriteLine ("Usage: ");
+			Console.WriteLine ("  Parse message file and generate cs code:");
+			Console.WriteLine ("     mono ROS2CSMessageGenerator.exe -m <path to message file> <path to package.xml> <output path>");
+			Console.WriteLine ("  Compile generated cs files to assembly:");
+			Console.WriteLine ("     mono ROS2CSMessageGenerator.exe -c <directory with cs files> <path to resulting assembly>");
+
+		}
+		public static void Main (string[] args)
+		{
+			if (args.Length < 1) {
+				PrintHelp ();
+				return;
+			}
+			if (args [0] == "-m") {
+				if (args.Length < 4) {
+					PrintHelp ();
+					return;
+				}
+				string messageFile = args [1];
+				string packageXml = args [2];
+				string outputPath = args [3];
+				Console.WriteLine ("Parsing message file: " + messageFile);
+				CsClassGenerator generator = new CsClassGenerator (messageFile, packageXml);
+				generator.Parse ();
+				generator.FinalizeClass ();
+				Console.WriteLine (generator.GetResultingClass ());
+				System.IO.File.WriteAllText (Path.Combine (outputPath, generator.Name + "_msg.cs"), generator.GetResultingClass ());
+			} else if (args [0] == "-c") {
+				if (args.Length < 3) {
+					PrintHelp ();
+					return;
+				}
+				string classDir = args [1];
+				string assemblyPath = args [2];
+				if (!Directory.Exists (classDir)) {
+					Console.WriteLine ("Directory does not exist: " + classDir);
+					return;
+				}
+				List<string> cs_files = new List<string> ();
+				foreach (var item in Directory.GetFiles(classDir)) {
+					FileInfo info = new FileInfo (item);
+					if (info.Extension == ".cs") {
+						cs_files.Add (item);
+					}
+				}
+				CompileToAssembly (assemblyPath, cs_files);
+			} else {
+				PrintHelp ();
+			}
+
+		}
+		public static void CompileToAssembly(string AssemblyPath,List<string> files)
+		{
+			CSharpCodeProvider provider = new CSharpCodeProvider ();
+
+			CompilerParameters cp = new CompilerParameters();
+			cp.ReferencedAssemblies.Add( "System.dll" );
+			cp.ReferencedAssemblies.Add( "rclcs.dll" );
+
+			cp.GenerateExecutable = false;
+			cp.OutputAssembly = AssemblyPath;
+
+			cp.GenerateInMemory = false;
+
+			CompilerResults results = provider.CompileAssemblyFromFile (cp, files.ToArray ());
+
+			if (results.Errors.Count > 0)
+			{
+				// Display compilation errors.
+				Console.WriteLine("Errors building: "+ results.PathToAssembly);
+				foreach (CompilerError ce in results.Errors)
+				{
+					Console.WriteLine("  {0}", ce.ToString());
+					Console.WriteLine();
+				}
+			}
+			else
+			{
+				Console.WriteLine (results.PathToAssembly + " build successfull");
+					
+			}
+		}
+	}
+}
