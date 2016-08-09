@@ -71,8 +71,10 @@ namespace ROS2CSMessageGenerator
 			CSharpCodeProvider provider = new CSharpCodeProvider ();
 
 			CompilerParameters cp = new CompilerParameters();
+			string rclcsPath = Environment.GetEnvironmentVariable ("AMENT_PREFIX_PATH");
+			rclcsPath = Path.Combine (rclcsPath, "lib/rclcs.dll");
 			cp.ReferencedAssemblies.Add( "System.dll" );
-			cp.ReferencedAssemblies.Add( "rclcs.dll" );
+			cp.ReferencedAssemblies.Add(rclcsPath);
 
 			cp.GenerateExecutable = false;
 			cp.OutputAssembly = AssemblyPath;
