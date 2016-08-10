@@ -59,16 +59,29 @@ namespace ROS2CSMessageGenerator
 			while (!FileReader.EndOfStream) 
 			{
 				string line = FileReader.ReadLine ();
-				//Console.WriteLine (line);
-
-				if (line.Trim () != "") {
+				if (line.StartsWith ("#") || line.StartsWith ("-")) {
+				}
+				else if (line.Trim () != "") {
 					string[] splitted = line.Split (new string[]{ " " }, StringSplitOptions.RemoveEmptyEntries);
 					if(IsArray(splitted[0])){
-							
+						string csType = GetPrimitiveType (splitted [0].Remove(splitted[0].IndexOf("["),2));
+						if (!(csType.Trim () == "")) {
+							csType += "[]";
+							string memberName = splitted [1];
+							if (memberName.Contains ("=")) {
+								memberName = memberName.Split (new char[]{ '=' }) [0];
+							}
+							//Console.WriteLine ("Adding member of type: " + csType + " with name: " + memberName);
+							Members.Add ("public " + csType + " " + memberName + ";");
+						}
 					}
 					else if (IsPrimitiveType (splitted [0])) {
+						
 						string csType = GetPrimitiveType (splitted [0]);
 						string memberName = splitted [1];
+						if (memberName.Contains ("=")) {
+							memberName = memberName.Split (new char[]{ '=' }) [0];
+						}
 						//Console.WriteLine ("Adding member of type: " + csType + " with name: " + memberName);
 						Members.Add ("public "+ csType + " " + memberName + ";");
 					}
@@ -76,6 +89,11 @@ namespace ROS2CSMessageGenerator
 				}
 			}
 
+		}
+		public bool HasInitializer(string type)
+		{
+			return type.Contains ("=");
+				
 		}
 		public bool IsPrimitiveType(string type)
 		{
@@ -91,27 +109,28 @@ namespace ROS2CSMessageGenerator
 		}
 		public string GetPrimitiveType(string primitiveType)
 		{
+			
 			switch (primitiveType) {
 			case "bool":
-				return "bool";
+				return "System.Boolean";
 			case "byte":
-				return "byte";
+				return "System.Byte";
 			case "int8":
-				return "Byte";
+				return "System.Byte";
 			case "uint8":
-				return "SByte";
+				return "System.SByte";
 			case "int16":
-				return "Int16";
+				return "System.Int16";
 			case "uint16":
-				return "UInt16";
+				return "System.UInt16";
 			case "int32":
-				return "Int32";
+				return "System.Int32";
 			case "uint32":
-				return "UInt32";
+				return "System.UInt32";
 			case "int64":
-				return "Int64";
+				return "System.Int64";
 			case "uint64":
-				return "UInt64";
+				return "System.UInt64";
 			case "float32":
 				return "float";
 			case "float64":
@@ -120,7 +139,7 @@ namespace ROS2CSMessageGenerator
 				return "rosidl_generator_c__String";
 				//TODO time and duration
 			default:
-				Console.WriteLine ("Error: couldn't parse specified primitive type: " + primitiveType);
+				//Console.WriteLine ("Error: couldn't parse specified primitive type: " + primitiveType);
 				return "";
 
 			}
