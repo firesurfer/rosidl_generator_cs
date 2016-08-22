@@ -63,12 +63,19 @@ namespace ROS2CSMessageGenerator
 
 				if (line.Trim () != "") {
 					string[] splitted = line.Split (new string[]{ " " }, StringSplitOptions.RemoveEmptyEntries);
-					if(IsArray(splitted[0])){
+					if (IsComment (splitted [0])) {
+						
+					}
+					else if(IsArray(splitted[0])){
 							
 					}
 					else if (IsPrimitiveType (splitted [0])) {
 						string csType = GetPrimitiveType (splitted [0]);
 						string memberName = splitted [1];
+						if (memberName.Contains ("=")) {
+							memberName = memberName.Split (new char[]{ '=' }) [0];
+								
+						}
 						//Console.WriteLine ("Adding member of type: " + csType + " with name: " + memberName);
 						Members.Add ("public "+ csType + " " + memberName + ";");
 					}
@@ -76,6 +83,11 @@ namespace ROS2CSMessageGenerator
 				}
 			}
 
+		}
+		public bool IsComment(string line)
+		{
+			line = line.Trim ();
+			return line.StartsWith ("#");
 		}
 		public bool IsPrimitiveType(string type)
 		{
@@ -93,25 +105,25 @@ namespace ROS2CSMessageGenerator
 		{
 			switch (primitiveType) {
 			case "bool":
-				return "bool";
+				return "System.Boolean";
 			case "byte":
-				return "byte";
+				return "System.Byte";
 			case "int8":
-				return "Byte";
+				return "System.Byte";
 			case "uint8":
-				return "SByte";
+				return "System.SByte";
 			case "int16":
-				return "Int16";
+				return "System.Int16";
 			case "uint16":
-				return "UInt16";
+				return "System.UInt16";
 			case "int32":
-				return "Int32";
+				return "System.Int32";
 			case "uint32":
-				return "UInt32";
+				return "System.UInt32";
 			case "int64":
-				return "Int64";
+				return "System.Int64";
 			case "uint64":
-				return "UInt64";
+				return "System.UInt64";
 			case "float32":
 				return "float";
 			case "float64":
