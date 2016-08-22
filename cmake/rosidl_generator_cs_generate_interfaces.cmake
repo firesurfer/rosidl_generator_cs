@@ -60,8 +60,11 @@ add_custom_target(
  )
  if(NOT rosidl_generate_interfaces_SKIP_INSTALL)
   install(
-    FILES ${_output_path}/${PROJECT_NAME}.dll $ENV{AMENT_PREFIX_PATH}/lib/rclcs.dll
-    DESTINATION "lib/"
+    FILES 
+	${_output_path}/${PROJECT_NAME}.dll 
+	$ENV{AMENT_PREFIX_PATH}/lib/rclcs.dll
+    DESTINATION 
+	"lib/"
     )
  endif()
 

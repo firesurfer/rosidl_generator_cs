@@ -63,11 +63,17 @@ namespace ROS2CSMessageGenerator
 
 				if (line.Trim () != "") {
 					string[] splitted = line.Split (new string[]{ " " }, StringSplitOptions.RemoveEmptyEntries);
-					if (IsComment (splitted [0])) {
-						
-					}
-					else if(IsArray(splitted[0])){
-							
+					if(IsArray(splitted[0])){
+						string csType = GetPrimitiveType (splitted [0].Remove(splitted[0].IndexOf("["),2));
+						if (!(csType.Trim () == "")) {
+							csType += "[]";
+							string memberName = splitted [1];
+							if (memberName.Contains ("=")) {
+								memberName = memberName.Split (new char[]{ '=' }) [0];
+							}
+							//Console.WriteLine ("Adding member of type: " + csType + " with name: " + memberName);
+							Members.Add ("public " + csType + " " + memberName + ";");
+						}
 					}
 					else if (IsPrimitiveType (splitted [0])) {
 						string csType = GetPrimitiveType (splitted [0]);
@@ -132,7 +138,7 @@ namespace ROS2CSMessageGenerator
 				return "rosidl_generator_c__String";
 				//TODO time and duration
 			default:
-				Console.WriteLine ("Error: couldn't parse specified primitive type: " + primitiveType);
+				//Console.WriteLine ("Error: couldn't parse specified primitive type: " + primitiveType);
 				return "";
 
 			}
