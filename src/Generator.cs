@@ -38,7 +38,8 @@ namespace ROS2CSMessageGenerator
 			ClassString.AppendLine ("using System.Runtime.InteropServices;");
 			ClassString.AppendLine ("namespace " + Namespace);
 			ClassString.AppendLine ("{");
-			ClassString.AppendLine ("    public struct " + Name);
+			ClassString.AppendLine ("    [StructLayout (LayoutKind.Sequential)]");
+			ClassString.AppendLine ("    public class " + Name);
 			ClassString.AppendLine ("    {");
 			ClassString.AppendLine ("        [DllImport (\"lib"+Namespace+"__rosidl_typesupport_introspection_c.so\")]");
 			ClassString.AppendLine ("        public static extern IntPtr " +GetTypeSupportMessageFunctionName()+"();");
@@ -78,10 +79,10 @@ namespace ROS2CSMessageGenerator
 					else if (IsPrimitiveType (splitted [0])) {
 						string csType = GetPrimitiveType (splitted [0]);
 						string memberName = splitted [1];
-						if (memberName.Contains ("=")) {
-							memberName = memberName.Split (new char[]{ '=' }) [0];
-								
+						if (csType == "rosidl_generator_c__String") {
+							memberName += "= new rosidl_generator_c__String()";
 						}
+						
 						//Console.WriteLine ("Adding member of type: " + csType + " with name: " + memberName);
 						Members.Add ("public "+ csType + " " + memberName + ";");
 					}
