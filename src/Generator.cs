@@ -39,7 +39,7 @@ namespace ROS2CSMessageGenerator
 			ClassString.AppendLine ("namespace " + Namespace);
 			ClassString.AppendLine ("{");
 			ClassString.AppendLine ("    [StructLayout (LayoutKind.Sequential)]");
-			ClassString.AppendLine ("    public class " + Name);
+			ClassString.AppendLine ("    public class " + Name + ":MessageBase");
 			ClassString.AppendLine ("    {");
 			ClassString.AppendLine ("        [DllImport (\"lib"+Namespace+"__rosidl_typesupport_introspection_c.so\")]");
 			ClassString.AppendLine ("        public static extern IntPtr " +GetTypeSupportMessageFunctionName()+"();");
@@ -65,13 +65,16 @@ namespace ROS2CSMessageGenerator
 				if (line.Trim () != "") {
 					string[] splitted = line.Split (new string[]{ " " }, StringSplitOptions.RemoveEmptyEntries);
 					if(IsArray(splitted[0])){
+						string nativeType = splitted [0].Remove (splitted [0].IndexOf ("["), 2);
 						string csType = GetPrimitiveType (splitted [0].Remove(splitted[0].IndexOf("["),2));
 						if (!(csType.Trim () == "")) {
-							csType += "[]";
+							csType = "rosidl_generator_c__primitive_array_" + nativeType  ;
 							string memberName = splitted [1];
 							if (memberName.Contains ("=")) {
 								memberName = memberName.Split (new char[]{ '=' }) [0];
+
 							}
+							memberName += " = new rosidl_generator_c__primitive_array_" + nativeType + "()";
 							//Console.WriteLine ("Adding member of type: " + csType + " with name: " + memberName);
 							Members.Add ("public " + csType + " " + memberName + ";");
 						}
@@ -108,6 +111,7 @@ namespace ROS2CSMessageGenerator
 				return true;
 			return false;
 		}
+
 		public string GetPrimitiveType(string primitiveType)
 		{
 			switch (primitiveType) {
