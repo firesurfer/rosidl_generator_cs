@@ -72,6 +72,8 @@ namespace ROS2CSMessageGenerator
 
 			CompilerParameters cp = new CompilerParameters();
 			string rclcsPath = Environment.GetEnvironmentVariable ("AMENT_PREFIX_PATH");
+			string firstPathElement = rclcsPath.Split (new char[]{ ':' }) [0];
+			rclcsPath = firstPathElement;
 			rclcsPath = Path.Combine (rclcsPath, "lib/rclcs.dll");
 			cp.ReferencedAssemblies.Add( "System.dll" );
 			cp.ReferencedAssemblies.Add(rclcsPath);
@@ -86,7 +88,10 @@ namespace ROS2CSMessageGenerator
 			if (results.Errors.Count > 0)
 			{
 				// Display compilation errors.
-				Console.WriteLine("Errors building: "+ results.PathToAssembly);
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine("Errors building: "+ AssemblyPath);
+				Console.ResetColor();
+				Console.WriteLine ("Search path for rclcs was: " + rclcsPath);
 				foreach (CompilerError ce in results.Errors)
 				{
 					Console.WriteLine("  {0}", ce.ToString());
