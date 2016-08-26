@@ -82,9 +82,17 @@ namespace ROS2CSMessageGenerator
 					else if (IsPrimitiveType (splitted [0])) {
 						string csType = GetPrimitiveType (splitted [0]);
 						string memberName = splitted [1];
+						if (memberName.Contains ("=")) {
+							memberName = memberName.Split (new char[]{ '=' }) [0];
+
+						}
 						if (csType == "rosidl_generator_c__String") {
 							//memberName += "= new rosidl_generator_c__String()";
 							Members.Add ("public "+ csType + " " + memberName + ";");
+						}
+						else if (csType == "System.Boolean") {
+							
+							Members.Add ("[MarshalAs(UnmanagedType.U1)]\n        public "+ csType + " " + memberName + ";");
 						}
 						else
 						{
@@ -120,7 +128,7 @@ namespace ROS2CSMessageGenerator
 		{
 			switch (primitiveType) {
 			case "bool":
-				return "System.Boolean";
+				return "byte";
 			case "byte":
 				return "System.Byte";
 			case "int8":
