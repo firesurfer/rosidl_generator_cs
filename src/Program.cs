@@ -21,6 +21,7 @@ namespace ROS2CSMessageGenerator
 		}
 		public static void Main (string[] args)
 		{
+			bool IsService = false;
 			if (args.Length < 1) {
 				PrintHelp ();
 				return;
@@ -37,11 +38,20 @@ namespace ROS2CSMessageGenerator
 					Directory.CreateDirectory (outputPath);
 					
 				Console.WriteLine ("Parsing message file: " + messageFile);
+				if (messageFile.Contains ("Request") || messageFile.Contains ("Response")) {
+					IsService = true;
+				}
+				if (Path.GetExtension (messageFile) == ".srv")
+					return;
+
 				CsClassGenerator generator = new CsClassGenerator (messageFile, packageName);
 				generator.Parse ();
 				generator.FinalizeClass ();
 				//Console.WriteLine (generator.GetResultingClass ());
-				System.IO.File.WriteAllText (Path.Combine (outputPath, generator.Name + "_msg.cs"), generator.GetResultingClass ());
+				if(!IsService)
+					System.IO.File.WriteAllText (Path.Combine (outputPath, generator.Name + "_msg.cs"), generator.GetResultingClass ());
+				else
+					System.IO.File.WriteAllText (Path.Combine (outputPath, generator.Name + "_srv.cs"), generator.GetResultingClass ());
 			} else if (args [0] == "-c") {
 				if (args.Length < 3) {
 					PrintHelp ();

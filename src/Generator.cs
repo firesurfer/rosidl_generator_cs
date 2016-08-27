@@ -18,17 +18,22 @@ namespace ROS2CSMessageGenerator
 		public string MsgSubfolder{get;private set;}
 		List<string> Members = new List<string>();
 		StringBuilder ClassString =  new StringBuilder();
+		bool IsService = false;
 
 		bool ClassWasFinalized = false;
 
 		public CsClassGenerator (string _Path, string _PackageName)
 		{
 			FileReader = new StreamReader (_Path);
-
+			if (_Path.Contains("Reponse") || _Path.Contains("Request")) {
+				IsService = true;
+			}
+			Console.WriteLine ("Is this a service?: " + IsService + " Because filextension is: " + Path.GetExtension (_Path));
 			Namespace = _PackageName;
 			Console.WriteLine ("Using packagename as namespace: " +Namespace);
 			Name = Path.GetFileName (_Path);
 			Name = Name.Replace (Path.GetExtension (_Path), "");
+
 			Console.WriteLine ("Using message file name as message name: " + Name);
 
 			//Console.WriteLine ("Preparing class");
@@ -38,12 +43,30 @@ namespace ROS2CSMessageGenerator
 			ClassString.AppendLine ("using System.Runtime.InteropServices;");
 			ClassString.AppendLine ("namespace " + Namespace);
 			ClassString.AppendLine ("{");
-			ClassString.AppendLine ("    [StructLayout (LayoutKind.Sequential)]");
-			ClassString.AppendLine ("    public struct " + Name);
+
+			if(!IsService)
+				ClassString.AppendLine ("    namespace msg");
+			else
+				ClassString.AppendLine ("    namespace srv");
 			ClassString.AppendLine ("    {");
-			ClassString.AppendLine ("        [DllImport (\"lib"+Namespace+"__rosidl_typesupport_introspection_c.so\")]");
-			ClassString.AppendLine ("        public static extern IntPtr " +GetTypeSupportMessageFunctionName()+"();");
+			ClassString.AppendLine ("    [StructLayout (LayoutKind.Sequential)]");
+
+			if(!IsService)
+				ClassString.AppendLine ("    public struct " + Name + ":IRosMessage");
+			else
+				ClassString.AppendLine ("    public struct " + Name + ":IRosService");
+			
+			ClassString.AppendLine ("    {");
+			if (!IsService) {
+				ClassString.AppendLine ("        [DllImport (\"lib" + Namespace + "__rosidl_typesupport_introspection_c.so\")]");
+				ClassString.AppendLine ("        public static extern IntPtr " + GetTypeSupportMessageFunctionName () + "();");
+			} else {
+				//TODO Generate correct function name
+				ClassString.AppendLine ("        [DllImport (\"lib" + Namespace + "__rosidl_typesupport_introspection_c.so\")]");
+				ClassString.AppendLine ("        public static extern IntPtr " + GetTypeSupportServiceFunctionName () + "();");
+			}
 			ClassString.AppendLine ("");
+			ClassString.AppendLine( "        public void Free(){}");
 
 		
 
@@ -169,12 +192,20 @@ namespace ROS2CSMessageGenerator
 				ClassString.AppendLine ("        " + item);
 			}
 			ClassString.AppendLine ("    }");
+			ClassString.AppendLine ("    }");
 			ClassString.AppendLine ("}");
 			ClassWasFinalized = true;
 		}
 		public string GetTypeSupportMessageFunctionName()
 		{
-			string func = "rosidl_typesupport_introspection_c_get_message__"+Namespace+"__"+MsgSubfolder+"msg__"+Name;
+			string func = "rosidl_typesupport_introspection_c_get_message__"+Namespace+"__msg__"+Name;
+			return func;
+		}
+		public string GetTypeSupportServiceFunctionName()
+		{
+			string reducedName = Name.Replace ("_Request", "");
+			reducedName = reducedName.Replace("_Response", "");
+			string func = "rosidl_typesupport_introspection_c_get_service__"+Namespace+"__srv__"+reducedName;
 			return func;
 		}
 
