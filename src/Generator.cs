@@ -25,7 +25,7 @@ namespace ROS2CSMessageGenerator
 		public CsClassGenerator (string _Path, string _PackageName)
 		{
 			FileReader = new StreamReader (_Path);
-			if (_Path.Contains("Reponse") || _Path.Contains("Request")) {
+			if (_Path.Contains("Response") || _Path.Contains("Request")) {
 				IsService = true;
 			}
 			Console.WriteLine ("Is this a service?: " + IsService + " Because filextension is: " + Path.GetExtension (_Path));
@@ -39,7 +39,7 @@ namespace ROS2CSMessageGenerator
 			//Console.WriteLine ("Preparing class");
 
 			ClassString.AppendLine ("using System;");
-			ClassString.AppendLine ("using ROS2Sharp;");
+			ClassString.AppendLine ("using rclcs;");
 			ClassString.AppendLine ("using System.Runtime.InteropServices;");
 			ClassString.AppendLine ("namespace " + Namespace);
 			ClassString.AppendLine ("{");
@@ -221,9 +221,15 @@ namespace ROS2CSMessageGenerator
 		}
 		public string GetTypeSupportServiceFunctionName()
 		{
-			string reducedName = Name.Replace ("_Request", "");
-			reducedName = reducedName.Replace("_Response", "");
-			string func = "rosidl_typesupport_introspection_c_get_service__"+Namespace+"__srv__"+reducedName;
+			
+
+			string dummyName = Name.Replace ("_", "");
+			dummyName = dummyName.Replace ("Request", "");
+			dummyName = dummyName.Replace ("Response", "");
+			string	func = "rosidl_typesupport_introspection_c_get_message__"+Namespace+"__srv__"+dummyName;
+
+
+
 			return func;
 		}
 
