@@ -62,7 +62,7 @@ add_custom_target(
   install(
     FILES 
 	${_output_path}/${PROJECT_NAME}.dll 
-	$ENV{AMENT_PREFIX_PATH}/lib/rclcs.dll
+	#$ENV{AMENT_PREFIX_PATH}/lib/rclcs.dll
     DESTINATION 
 	"lib/"
     )

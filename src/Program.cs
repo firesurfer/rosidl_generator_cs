@@ -84,9 +84,21 @@ namespace ROS2CSMessageGenerator
 			string rclcsPath = Environment.GetEnvironmentVariable ("AMENT_PREFIX_PATH");
 			string firstPathElement = rclcsPath.Split (new char[]{ ':' }) [0];
 			rclcsPath = firstPathElement;
-			rclcsPath = Path.Combine (rclcsPath, "lib/rclcs.dll");
+
+			string ros2libPath = Path.Combine (rclcsPath, "lib");
 			cp.ReferencedAssemblies.Add( "System.dll" );
-			cp.ReferencedAssemblies.Add(rclcsPath);
+			foreach (var item in Directory.GetFiles(ros2libPath)) {
+				if (Path.GetExtension (item) == ".dll") {
+					try {
+						System.Reflection.AssemblyName testAssembly = System.Reflection.AssemblyName.GetAssemblyName (item);
+						cp.ReferencedAssemblies.Add(item);
+						Console.WriteLine(item);
+					} catch (Exception ex) {
+						
+					}
+
+				}
+			}
 
 			cp.GenerateExecutable = false;
 			cp.OutputAssembly = AssemblyPath;

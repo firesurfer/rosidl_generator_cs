@@ -15,7 +15,7 @@ namespace ROS2CSMessageGenerator
 
 		public string Namespace{ get; private set;}
 		public string Name{ get; private set; }
-		public string MsgSubfolder{get;private set;}
+
 		List<string> Members = new List<string>();
 		StringBuilder ClassString =  new StringBuilder();
 		bool IsService = false;
@@ -105,11 +105,11 @@ namespace ROS2CSMessageGenerator
 
 				if (line.Trim () != "") {
 					string[] splitted = line.Split (new string[]{ " " }, StringSplitOptions.RemoveEmptyEntries);
-					if(IsArray(splitted[0])){
+					if (IsArray (splitted [0])) {
 						string nativeType = splitted [0].Remove (splitted [0].IndexOf ("["), 2);
-						string csType = GetPrimitiveType (splitted [0].Remove(splitted[0].IndexOf("["),2));
+						string csType = GetPrimitiveType (splitted [0].Remove (splitted [0].IndexOf ("["), 2));
 						if (!(csType.Trim () == "")) {
-							csType = "rosidl_generator_c__primitive_array_" + nativeType  ;
+							csType = "rosidl_generator_c__primitive_array_" + nativeType;
 							string memberName = splitted [1];
 							if (memberName.Contains ("=")) {
 								memberName = memberName.Split (new char[]{ '=' }) [0];
@@ -119,8 +119,7 @@ namespace ROS2CSMessageGenerator
 							//Console.WriteLine ("Adding member of type: " + csType + " with name: " + memberName);
 							Members.Add ("public " + csType + " " + memberName + ";");
 						}
-					}
-					else if (IsPrimitiveType (splitted [0])) {
+					} else if (IsPrimitiveType (splitted [0])) {
 						string csType = GetPrimitiveType (splitted [0]);
 						string memberName = splitted [1];
 						if (memberName.Contains ("=")) {
@@ -129,17 +128,22 @@ namespace ROS2CSMessageGenerator
 						}
 						if (csType == "rosidl_generator_c__String") {
 							//memberName += "= new rosidl_generator_c__String()";
-							Members.Add ("public "+ csType + " " + memberName + ";");
-						}
-						else if (csType == "System.Boolean") {
+							Members.Add ("public " + csType + " " + memberName + ";");
+						} else if (csType == "System.Boolean") {
 							
-							Members.Add ("[MarshalAs(UnmanagedType.U1)]\n        public "+ csType + " " + memberName + ";");
-						}
-						else
-						{
-							Members.Add ("public "+ csType + " " + memberName + ";");
+							Members.Add ("[MarshalAs(UnmanagedType.U1)]\n        public " + csType + " " + memberName + ";");
+						} else {
+							Members.Add ("public " + csType + " " + memberName + ";");
 						}
 						//Console.WriteLine ("Adding member of type: " + csType + " with name: " + memberName);
+
+					} else if(splitted[0].Contains("/")){
+						//TODO Check for nested type
+
+						string[] nestedSplitted = splitted [0].Split (new string[]{ "/" }, StringSplitOptions.RemoveEmptyEntries);
+						string pureType = nestedSplitted [1];
+						string nestedNamespace = nestedSplitted [0];
+						Members.Add ("public " +nestedNamespace+".msg."+ pureType + " " + splitted [1] + ";"); 
 
 					}
 							
