@@ -66,7 +66,25 @@ namespace ROS2CSMessageGenerator
 				ClassString.AppendLine ("        public static extern IntPtr " + GetTypeSupportServiceFunctionName () + "();");
 			}
 			ClassString.AppendLine ("");
-			ClassString.AppendLine( "        public void Free(){}");
+			ClassString.AppendLine ("        public void Free(){\n" +
+			"          foreach (var item in this.GetType().GetFields()) {\n" +
+			"            if (typeof(IRosTransportItem).IsAssignableFrom (item.FieldType)) {\n" +
+			"               IRosTransportItem ros_transport_item = (IRosTransportItem)item.GetValue(this);\n" +
+			"               ros_transport_item.Free();\n" +
+			"            }\n"+
+			"          }\n"+
+			"        }"
+			);
+
+
+
+				
+					
+					
+
+				
+
+
 
 		
 
