@@ -307,26 +307,100 @@ namespace ROS2CSMessageGenerator
 				ClassString.AppendLine ("        " + item);
 				//WrapperClassString.AppendLine
 			}*/
+			//TODO Remember to free in case of assignement
 			foreach (var item in MessageMembers) {
 				if(!item.isNested)
 					ClassString.AppendLine ("         " + item.ToString ());
 				else 
 					ClassString.AppendLine ("         public " +item.type  + "_t " + item.name + ";");
 				switch (item.type) {
-				case "string":
+				case "rosidl_generator_c__String":
+					WrapperClassString.AppendLine ("        public string "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return __data."+item.name+".ToString();}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__String(value);}");
+					break;
+
+				case "rosidl_generator_c__primitive_array_bool":
+					WrapperClassString.AppendLine ("        public bool[] "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__primitive_array_bool(value);}");
+
 					break;
 				case "rosidl_generator_c__primitive_array_float32":
 					WrapperClassString.AppendLine ("        public float[] "+ item.name);
 					WrapperClassString.AppendLine ("        {");
 					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
-					WrapperClassString.AppendLine ("            set{__data."+item.name+" = new rosidl_generator_c__primitive_array_float32(value);}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__primitive_array_float32(value);}");
 
 					break;
+				
 				case "rosidl_generator_c__primitive_array_float64":
 					WrapperClassString.AppendLine ("        public double[] "+ item.name);
 					WrapperClassString.AppendLine ("        {");
 					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
-					WrapperClassString.AppendLine ("            set{__data."+item.name+" = new rosidl_generator_c__primitive_array_float64(value);}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__primitive_array_float64(value);}");
+
+					break;
+				case "rosidl_generator_c__primitive_array_int8":
+					WrapperClassString.AppendLine ("        public Byte[] "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__primitive_array_int8(value);}");
+
+					break;
+				case "rosidl_generator_c__primitive_array_uint8":
+					WrapperClassString.AppendLine ("        public SByte[] "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__primitive_array_uint8(value);}");
+
+					break;
+				case "rosidl_generator_c__primitive_array_int16":
+					WrapperClassString.AppendLine ("        public Int16[] "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__primitive_array_int16(value);}");
+
+					break;
+				case "rosidl_generator_c__primitive_array_uint16":
+					WrapperClassString.AppendLine ("        public UInt16[] "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__primitive_array_uint16(value);}");
+
+					break;
+
+
+				case "rosidl_generator_c__primitive_array_int32":
+					WrapperClassString.AppendLine ("        public Int32[] "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__primitive_array_int32(value);}");
+
+					break;
+				case "rosidl_generator_c__primitive_array_uint32":
+					WrapperClassString.AppendLine ("        public UInt32[] "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__primitive_array_uint32(value);}");
+
+					break;
+
+
+				case "rosidl_generator_c__primitive_array_int64":
+					WrapperClassString.AppendLine ("        public Int64[] "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__primitive_array_int64(value);}");
+
+					break;
+				case "rosidl_generator_c__primitive_array_uint64":
+					WrapperClassString.AppendLine ("        public UInt64[] "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__primitive_array_uint64(value);}");
 
 					break;
 				default:
