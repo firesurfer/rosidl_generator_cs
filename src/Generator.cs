@@ -111,10 +111,43 @@ namespace ROS2CSMessageGenerator
 			else
 				WrapperClassString.AppendLine ("    namespace srv");
 			WrapperClassString.AppendLine ("    {");
-			WrapperClassString.AppendLine ("        public class " + Name + ":MessageWrapper<"+StructName+">");
+			WrapperClassString.AppendLine ("        [StructLayout (LayoutKind.Sequential)]");
+			WrapperClassString.AppendLine ("        public class " + Name + ":MessageWrapper");
 			WrapperClassString.AppendLine ("        {");
 			WrapperClassString.AppendLine ("           private bool disposed = false;");
+			WrapperClassString.AppendLine ("           private "+StructName+" data;");
 			WrapperClassString.AppendLine ("");
+			WrapperClassString.AppendLine ("           public "+ Name + "()");
+			WrapperClassString.AppendLine ("           {");
+			WrapperClassString.AppendLine ("              ");
+			WrapperClassString.AppendLine ("           }");
+			WrapperClassString.AppendLine ("");
+			WrapperClassString.AppendLine ("           public "+ Name + "(" + StructName+ " _data)");
+			WrapperClassString.AppendLine ("           {");
+			WrapperClassString.AppendLine ("               data = _data;");
+			WrapperClassString.AppendLine ("           }");
+			WrapperClassString.AppendLine ("");
+			WrapperClassString.AppendLine ("           public "+StructName+" Data");
+			WrapperClassString.AppendLine ("           {");
+			WrapperClassString.AppendLine ("               get{return data;}");
+			WrapperClassString.AppendLine ("           }");
+			WrapperClassString.AppendLine ("");
+			WrapperClassString.AppendLine ("           public static Type GetMessageType()");
+			WrapperClassString.AppendLine ("           {");
+			WrapperClassString.AppendLine ("               return typeof("+StructName+");");
+			WrapperClassString.AppendLine ("           }");
+			WrapperClassString.AppendLine ("");
+			WrapperClassString.AppendLine ("           public override void  GetData(out ValueType _data)");
+			WrapperClassString.AppendLine ("           {");
+			WrapperClassString.AppendLine ("               _data = data;");
+			WrapperClassString.AppendLine ("           }");
+			WrapperClassString.AppendLine ("");
+			WrapperClassString.AppendLine ("           public override void  SetData(ref ValueType _data)");
+			WrapperClassString.AppendLine ("           {");
+			WrapperClassString.AppendLine ("               data =("+StructName+")_data;");
+			WrapperClassString.AppendLine ("           }");
+			WrapperClassString.AppendLine ("");
+
 			WrapperClassString.AppendLine ("           protected override void Dispose(bool disposing)");
 			WrapperClassString.AppendLine ("           {");
 			WrapperClassString.AppendLine ("               if (disposed)");
@@ -274,17 +307,28 @@ namespace ROS2CSMessageGenerator
 			}*/
 			foreach (var item in MessageMembers) {
 				ClassString.AppendLine ("         " + item.ToString ());
-				WrapperClassString.AppendLine ("        public " + item.type + " "+ item.name);
-				WrapperClassString.AppendLine ("        {");
-				WrapperClassString.AppendLine ("            get{return data."+item.name+";}");
+
 				switch (item.type) {
 				case "string":
 					break;
-				case "float":
+				case "rosidl_generator_c__primitive_array_float32":
+					WrapperClassString.AppendLine ("        public float[] "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{data."+item.name+" = new rosidl_generator_c__primitive_array_float32(value);}");
+
 					break;
-				case "double":
+				case "rosidl_generator_c__primitive_array_float64":
+					WrapperClassString.AppendLine ("        public double[] "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{data."+item.name+" = new rosidl_generator_c__primitive_array_float64(value);}");
+
 					break;
 				default:
+					WrapperClassString.AppendLine ("        public " + item.type + " "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return data."+item.name+";}");
 					WrapperClassString.AppendLine ("            set{data." + item.name + " = value;}");
 					break;
 				}
