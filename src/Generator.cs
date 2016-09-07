@@ -15,6 +15,7 @@ namespace ROS2CSMessageGenerator
 		public string type;
 		public string default_init;
 		public bool isArray = false;
+		public bool isNested = false;
 		public override string ToString ()
 		{
 			string ret = "public " +type  + " " + name + ";";
@@ -115,7 +116,7 @@ namespace ROS2CSMessageGenerator
 			WrapperClassString.AppendLine ("        public class " + Name + ":MessageWrapper");
 			WrapperClassString.AppendLine ("        {");
 			WrapperClassString.AppendLine ("           private bool disposed = false;");
-			WrapperClassString.AppendLine ("           private "+StructName+" data;");
+			WrapperClassString.AppendLine ("           private "+StructName+" __data;");
 			WrapperClassString.AppendLine ("");
 			WrapperClassString.AppendLine ("           public "+ Name + "()");
 			WrapperClassString.AppendLine ("           {");
@@ -124,12 +125,12 @@ namespace ROS2CSMessageGenerator
 			WrapperClassString.AppendLine ("");
 			WrapperClassString.AppendLine ("           public "+ Name + "(" + StructName+ " _data)");
 			WrapperClassString.AppendLine ("           {");
-			WrapperClassString.AppendLine ("               data = _data;");
+			WrapperClassString.AppendLine ("               __data = _data;");
 			WrapperClassString.AppendLine ("           }");
 			WrapperClassString.AppendLine ("");
 			WrapperClassString.AppendLine ("           public "+StructName+" Data");
 			WrapperClassString.AppendLine ("           {");
-			WrapperClassString.AppendLine ("               get{return data;}");
+			WrapperClassString.AppendLine ("               get{return __data;}");
 			WrapperClassString.AppendLine ("           }");
 			WrapperClassString.AppendLine ("");
 			WrapperClassString.AppendLine ("           public static Type GetMessageType()");
@@ -139,12 +140,12 @@ namespace ROS2CSMessageGenerator
 			WrapperClassString.AppendLine ("");
 			WrapperClassString.AppendLine ("           public override void  GetData(out ValueType _data)");
 			WrapperClassString.AppendLine ("           {");
-			WrapperClassString.AppendLine ("               _data = data;");
+			WrapperClassString.AppendLine ("               _data = __data;");
 			WrapperClassString.AppendLine ("           }");
 			WrapperClassString.AppendLine ("");
 			WrapperClassString.AppendLine ("           public override void  SetData(ref ValueType _data)");
 			WrapperClassString.AppendLine ("           {");
-			WrapperClassString.AppendLine ("               data =("+StructName+")_data;");
+			WrapperClassString.AppendLine ("               __data =("+StructName+")_data;");
 			WrapperClassString.AppendLine ("           }");
 			WrapperClassString.AppendLine ("");
 
@@ -153,7 +154,7 @@ namespace ROS2CSMessageGenerator
 			WrapperClassString.AppendLine ("               if (disposed)");
 			WrapperClassString.AppendLine ("                  return; ");
 			WrapperClassString.AppendLine ("               if (disposing) { ");
-			WrapperClassString.AppendLine ("                  data.Free(); ");
+			WrapperClassString.AppendLine ("                  __data.Free(); ");
 			WrapperClassString.AppendLine ("               }");
 			WrapperClassString.AppendLine ("               disposed = true;");
 			WrapperClassString.AppendLine ("           }");
@@ -233,6 +234,7 @@ namespace ROS2CSMessageGenerator
 						MessageMember member = new MessageMember ();
 						member.default_init = "";
 						member.name =  splitted [1];
+						member.isNested = true;
 						member.type = nestedNamespace+".msg."+ pureType;
 						MessageMembers.Add (member);
 
@@ -306,30 +308,37 @@ namespace ROS2CSMessageGenerator
 				//WrapperClassString.AppendLine
 			}*/
 			foreach (var item in MessageMembers) {
-				ClassString.AppendLine ("         " + item.ToString ());
-
+				if(!item.isNested)
+					ClassString.AppendLine ("         " + item.ToString ());
+				else 
+					ClassString.AppendLine ("         public " +item.type  + "_t " + item.name + ";");
 				switch (item.type) {
 				case "string":
 					break;
 				case "rosidl_generator_c__primitive_array_float32":
 					WrapperClassString.AppendLine ("        public float[] "+ item.name);
 					WrapperClassString.AppendLine ("        {");
-					WrapperClassString.AppendLine ("            get{return data."+item.name+".Array;}");
-					WrapperClassString.AppendLine ("            set{data."+item.name+" = new rosidl_generator_c__primitive_array_float32(value);}");
+					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+" = new rosidl_generator_c__primitive_array_float32(value);}");
 
 					break;
 				case "rosidl_generator_c__primitive_array_float64":
 					WrapperClassString.AppendLine ("        public double[] "+ item.name);
 					WrapperClassString.AppendLine ("        {");
-					WrapperClassString.AppendLine ("            get{return data."+item.name+".Array;}");
-					WrapperClassString.AppendLine ("            set{data."+item.name+" = new rosidl_generator_c__primitive_array_float64(value);}");
+					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+" = new rosidl_generator_c__primitive_array_float64(value);}");
 
 					break;
 				default:
-					WrapperClassString.AppendLine ("        public " + item.type + " "+ item.name);
+					WrapperClassString.AppendLine ("        public " + item.type + " " + item.name);
 					WrapperClassString.AppendLine ("        {");
-					WrapperClassString.AppendLine ("            get{return data."+item.name+";}");
-					WrapperClassString.AppendLine ("            set{data." + item.name + " = value;}");
+					if (!item.isNested) {
+						WrapperClassString.AppendLine ("            get{return __data." + item.name + ";}");
+						WrapperClassString.AppendLine ("            set{__data." + item.name + " = value;}");
+					} else {
+						WrapperClassString.AppendLine ("            get{return new "+item.type+ "(__data."+item.name+");}");
+						WrapperClassString.AppendLine ("            set{ValueType temp = __data."+item.name+"; value.GetData(out temp); __data."+item.name+" =("+item.type+"_t)temp;}");
+					}
 					break;
 				}
 				WrapperClassString.AppendLine ("        }");

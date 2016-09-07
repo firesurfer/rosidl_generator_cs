@@ -81,6 +81,7 @@ namespace ROS2CSMessageGenerator
 			CSharpCodeProvider provider = new CSharpCodeProvider ();
 
 			CompilerParameters cp = new CompilerParameters();
+
 			string rclcsPath = Environment.GetEnvironmentVariable ("AMENT_PREFIX_PATH");
 			string firstPathElement = rclcsPath.Split (new char[]{ ':' }) [0];
 			rclcsPath = firstPathElement;
@@ -109,15 +110,30 @@ namespace ROS2CSMessageGenerator
 
 			if (results.Errors.Count > 0)
 			{
+				
 				// Display compilation errors.
 				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine("Errors building: "+ AssemblyPath);
+				Console.WriteLine("Errors/Warnings building: "+ AssemblyPath);
 				Console.ResetColor();
+
 				Console.WriteLine ("Search path for rclcs was: " + rclcsPath);
 				foreach (CompilerError ce in results.Errors)
 				{
-					Console.WriteLine("  {0}", ce.ToString());
-					Console.WriteLine();
+					if (ce.IsWarning) {
+						Console.ForegroundColor = ConsoleColor.Blue;
+						Console.WriteLine (ce.FileName + " " + ce.ErrorNumber);
+						Console.ResetColor();
+						Console.WriteLine("  {0}", ce.ToString());
+						Console.WriteLine();
+					} else {
+						
+						Console.ForegroundColor = ConsoleColor.DarkRed;
+						Console.WriteLine (ce.FileName + " " + ce.ErrorNumber);
+						Console.ResetColor();
+						Console.WriteLine("  {0}", ce.ToString());
+						Console.WriteLine();
+					}
+
 				}
 			}
 			else
