@@ -117,10 +117,11 @@ namespace ROS2CSMessageGenerator
 				WrapperClassString.AppendLine ("    namespace srv");
 			WrapperClassString.AppendLine ("    {");
 			WrapperClassString.AppendLine ("        [StructLayout (LayoutKind.Sequential)]");
-			WrapperClassString.AppendLine ("        public class " + Name + ":MessageWrapper");
+			WrapperClassString.AppendLine ("        public unsafe class " + Name + ":MessageWrapper");
 			WrapperClassString.AppendLine ("        {");
 			WrapperClassString.AppendLine ("           private bool disposed = false;");
-			WrapperClassString.AppendLine ("           private "+StructName+" __data;");
+			WrapperClassString.AppendLine ("           private " + StructName+" __data;");
+
 			WrapperClassString.AppendLine ("");
 
 			/*WrapperClassString.AppendLine ("           public "+ Name + "(" + StructName+ " _data)");
@@ -128,7 +129,7 @@ namespace ROS2CSMessageGenerator
 			WrapperClassString.AppendLine ("               __data = _data;");
 			WrapperClassString.AppendLine ("           }");
 			WrapperClassString.AppendLine ("");*/
-			WrapperClassString.AppendLine ("           public "+ Name + "(ref " + StructName+ " _data)");
+			WrapperClassString.AppendLine ("           public "+ Name + "(ref " + StructName+ " _data):this()");
 			WrapperClassString.AppendLine ("           {");
 			WrapperClassString.AppendLine ("               __data = _data;");
 			WrapperClassString.AppendLine ("           }");
@@ -313,6 +314,8 @@ namespace ROS2CSMessageGenerator
 				//WrapperClassString.AppendLine
 			}*/
 			StringBuilder WrapperClassConstructorExtensions = new StringBuilder ();
+			StringBuilder WrapperClassSyncExtensions = new StringBuilder ();
+			StringBuilder WrapperClassInSyncExtensions = new StringBuilder ();
 			//TODO Remember to free in case of assignement
 			foreach (var item in MessageMembers) {
 				if(!item.isNested)
@@ -422,7 +425,9 @@ namespace ROS2CSMessageGenerator
 						WrapperClassString.AppendLine ("            get{return __data." + item.name + ";}");
 						WrapperClassString.AppendLine ("            set{__data." + item.name + " = value;}");
 					} else {
-						WrapperClassString.AppendLine ("            get{return __"+item.name+";}");
+						WrapperClassString.AppendLine ("            get{return __"+item.name+"; }");
+						WrapperClassSyncExtensions.AppendLine ("          __data." + item.name + "=__" + item.name + ".Data;");
+						WrapperClassInSyncExtensions.AppendLine ("            __" + item.name + " =new " + item.type + "(" +" ref __data."+item.name+ ");");
 						//WrapperClassString.AppendLine ("            set{}");
 					}
 					break;
@@ -437,10 +442,18 @@ namespace ROS2CSMessageGenerator
 			WrapperClassString.AppendLine ("        public "+ Name + "()");
 			WrapperClassString.AppendLine ("        {");
 
-			WrapperClassString.AppendLine("        " +WrapperClassConstructorExtensions.ToString());
+			WrapperClassString.AppendLine ("           " +WrapperClassConstructorExtensions.ToString());
 
 			WrapperClassString.AppendLine ("        }");
 			WrapperClassString.AppendLine ("");
+			WrapperClassString.AppendLine ("        public override void SyncDataOut()");
+			WrapperClassString.AppendLine ("        {");
+			WrapperClassString.AppendLine ("           " + WrapperClassSyncExtensions.ToString ());
+			WrapperClassString.AppendLine ("        }");
+			WrapperClassString.AppendLine ("        public override void SyncDataIn()");
+			WrapperClassString.AppendLine ("        {");
+			WrapperClassString.AppendLine ("           " + WrapperClassInSyncExtensions.ToString ());
+			WrapperClassString.AppendLine ("        }");
 			WrapperClassString.AppendLine ("        }");
 			WrapperClassString.AppendLine ("    }");
 			WrapperClassString.AppendLine ("}");

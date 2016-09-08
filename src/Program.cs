@@ -81,7 +81,7 @@ namespace ROS2CSMessageGenerator
 			CSharpCodeProvider provider = new CSharpCodeProvider ();
 
 			CompilerParameters cp = new CompilerParameters();
-
+			cp.CompilerOptions += " /unsafe";
 			string rclcsPath = Environment.GetEnvironmentVariable ("AMENT_PREFIX_PATH");
 			string firstPathElement = rclcsPath.Split (new char[]{ ':' }) [0];
 			rclcsPath = firstPathElement;
