@@ -4,13 +4,14 @@ using System.CodeDom.Compiler;
 using Microsoft.CSharp;
 using System.Collections.Generic;
 using System.Reflection;
+
 namespace ROS2CSMessageGenerator
 {
 	class MainClass
 	{
-		public static void PrintHelp()
+		public static void PrintHelp ()
 		{
-			Console.WriteLine ("ROS2CSMessageGenerator version: "+ typeof(MainClass).Assembly.GetName().Version);
+			Console.WriteLine ("ROS2CSMessageGenerator version: " + typeof(MainClass).Assembly.GetName ().Version);
 			Console.WriteLine ("This tool generates a C# assembly from ROS2 message definitions");
 			Console.WriteLine ("Usage: ");
 			Console.WriteLine ("  Parse message file and generate cs code:");
@@ -19,6 +20,7 @@ namespace ROS2CSMessageGenerator
 			Console.WriteLine ("     mono ROS2CSMessageGenerator.exe -c <directory with cs files> <path to resulting assembly>");
 
 		}
+
 		public static void Main (string[] args)
 		{
 			bool IsService = false;
@@ -48,7 +50,7 @@ namespace ROS2CSMessageGenerator
 				generator.Parse ();
 				generator.FinalizeClass ();
 				//Console.WriteLine (generator.GetResultingClass ());
-				if(!IsService)
+				if (!IsService)
 					System.IO.File.WriteAllText (Path.Combine (outputPath, generator.Name + "_msg.cs"), generator.GetResultingClass ());
 				else
 					System.IO.File.WriteAllText (Path.Combine (outputPath, generator.Name + "_srv.cs"), generator.GetResultingClass ());
@@ -76,25 +78,29 @@ namespace ROS2CSMessageGenerator
 			}
 
 		}
-		public static void CompileToAssembly(string AssemblyPath,List<string> files)
+
+		public static void CompileToAssembly (string AssemblyPath, List<string> files)
 		{
+
+			CompilerParameters cp = new CompilerParameters ();
+			cp.CompilerOptions += " /unsafe /warn";
+
+		
 			CSharpCodeProvider provider = new CSharpCodeProvider ();
 
-			CompilerParameters cp = new CompilerParameters();
-			cp.CompilerOptions += " /unsafe /nowarn";
 
 			string rclcsPath = Environment.GetEnvironmentVariable ("AMENT_PREFIX_PATH");
 			string firstPathElement = rclcsPath.Split (new char[]{ ':' }) [0];
 			rclcsPath = firstPathElement;
 
 			string ros2libPath = Path.Combine (rclcsPath, "lib");
-			cp.ReferencedAssemblies.Add( "System.dll" );
+			cp.ReferencedAssemblies.Add ("System.dll");
 			foreach (var item in Directory.GetFiles(ros2libPath)) {
 				if (Path.GetExtension (item) == ".dll") {
 					try {
 						System.Reflection.AssemblyName testAssembly = System.Reflection.AssemblyName.GetAssemblyName (item);
-						cp.ReferencedAssemblies.Add(item);
-						Console.WriteLine(item);
+						cp.ReferencedAssemblies.Add (item);
+
 					} catch (Exception ex) {
 						
 					}
@@ -106,42 +112,75 @@ namespace ROS2CSMessageGenerator
 			cp.OutputAssembly = AssemblyPath;
 
 			cp.GenerateInMemory = false;
+			try {
+				CompilerResults results = Compile(cp, files, provider);
 
-			CompilerResults results = provider.CompileAssemblyFromFile (cp, files.ToArray ());
+				if (results.Errors.Count > 0) {
 
-			if (results.Errors.Count > 0)
-			{
-				
-				// Display compilation errors.
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine("Errors/Warnings building: "+ AssemblyPath);
-				Console.ResetColor();
+					// Display compilation errors.
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine ("Errors/Warnings building: " + AssemblyPath);
+					Console.ResetColor ();
 
-				Console.WriteLine ("Search path for rclcs was: " + rclcsPath);
-				foreach (CompilerError ce in results.Errors)
-				{
-					if (ce.IsWarning) {
-						Console.ForegroundColor = ConsoleColor.Blue;
-						Console.WriteLine (ce.FileName + " " + ce.ErrorNumber);
-						Console.ResetColor();
-						Console.WriteLine("  {0}", ce.ToString());
-						Console.WriteLine();
-					} else {
-						
-						Console.ForegroundColor = ConsoleColor.DarkRed;
-						Console.WriteLine (ce.FileName + " " + ce.ErrorNumber);
-						Console.ResetColor();
-						Console.WriteLine("  {0}", ce.ToString());
-						Console.WriteLine();
+					Console.WriteLine ("Search path for rclcs was: " + rclcsPath);
+					foreach (CompilerError ce in results.Errors) {
+						if (ce.IsWarning) {
+							Console.ForegroundColor = ConsoleColor.Blue;
+							Console.WriteLine (ce.FileName + " " + ce.ErrorNumber);
+							Console.ResetColor ();
+							Console.WriteLine ("  {0}", ce.ToString ());
+							Console.WriteLine ();
+						} else {
+
+							Console.ForegroundColor = ConsoleColor.DarkRed;
+							Console.WriteLine (ce.FileName + " " + ce.ErrorNumber);
+							Console.ResetColor ();
+							Console.WriteLine ("  {0}", ce.ToString ());
+							Console.WriteLine ();
+						}
+
 					}
+				} else {
+					Console.WriteLine (results.PathToAssembly + " build successfull");
 
 				}
+			} catch (Exception ex) {
+				Console.WriteLine ("Using fallback without /nowarn option");
+				cp.CompilerOptions = "/unsafe";
+				CompilerResults results = Compile(cp, files, provider);
+
+				if (results.Errors.Count > 0) {
+
+					// Display compilation errors.
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine ("Errors/Warnings building: " + AssemblyPath);
+					Console.ResetColor ();
+
+					Console.WriteLine ("Search path for rclcs was: " + rclcsPath);
+					foreach (CompilerError ce in results.Errors) {
+						if (ce.IsWarning) {
+							Console.ForegroundColor = ConsoleColor.Blue;
+							Console.WriteLine (ce.FileName + " " + ce.ErrorNumber);
+							Console.ResetColor ();
+							Console.WriteLine ("  {0}", ce.ToString ());
+							Console.WriteLine ();
+						} else {
+
+							Console.ForegroundColor = ConsoleColor.DarkRed;
+							Console.WriteLine (ce.FileName + " " + ce.ErrorNumber);
+							Console.ResetColor ();
+							Console.WriteLine ("  {0}", ce.ToString ());
+							Console.WriteLine ();
+						}
+					}
+				}
+
 			}
-			else
-			{
-				Console.WriteLine (results.PathToAssembly + " build successfull");
-					
-			}
+
+		}
+		public static CompilerResults Compile(CompilerParameters cp, List<String> files, CSharpCodeProvider provider)
+		{
+			return  provider.CompileAssemblyFromFile (cp, files.ToArray ());
 		}
 	}
 }

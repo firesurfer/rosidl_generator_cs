@@ -44,13 +44,13 @@ namespace ROS2CSMessageGenerator
 			if (_Path.Contains("Response") || _Path.Contains("Request")) {
 				IsService = true;
 			}
-			Console.WriteLine ("Is this a service?: " + IsService + " Because filextension is: " + Path.GetExtension (_Path));
+			//Console.WriteLine ("Is this a service?: " + IsService + " Because filextension is: " + Path.GetExtension (_Path));
 			Namespace = _PackageName;
-			Console.WriteLine ("Using packagename as namespace: " +Namespace);
+			//Console.WriteLine ("Using packagename as namespace: " +Namespace);
 			Name = Path.GetFileName (_Path);
 			Name = Name.Replace (Path.GetExtension (_Path), "");
 
-			Console.WriteLine ("Using message file name as message name: " + Name);
+			//Console.WriteLine ("Using message file name as message name: " + Name);
 
 			//Console.WriteLine ("Preparing class");
 			StructName = Name + "_t";
