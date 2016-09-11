@@ -412,6 +412,13 @@ namespace ROS2CSMessageGenerator
 					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__primitive_array_uint64(value);}");
 
 					break;
+				case "rosidl_generator_c__primitive_array_string":
+					WrapperClassString.AppendLine ("        public string[] "+ item.name);
+					WrapperClassString.AppendLine ("        {");
+					WrapperClassString.AppendLine ("            get{return __data."+item.name+".Array;}");
+					WrapperClassString.AppendLine ("            set{__data."+item.name+".Free(); __data."+item.name+" = new rosidl_generator_c__primitive_array_string(value);}");
+
+					break;
 				default:
 					if (item.isNested) {
 						WrapperClassString.AppendLine ("        private " + item.type + " __" + item.name + ";");
