@@ -16,6 +16,9 @@ namespace ROS2CSMessageGenerator
 		public string default_init;
 		public bool isArray = false;
 		public bool isNested = false;
+		public bool isFixedSizeArray = false;
+		public int fixedSizeArraySize = 0;
+		public string message_type = "";
 		public override string ToString ()
 		{
 			string ret = "public " +type  + " " + name + ";";
@@ -175,16 +178,45 @@ namespace ROS2CSMessageGenerator
 			return ClassString.ToString ();
 			
 		}
+		//Returns -1 if it is an unbounded array
+		//Returns -2 if it isn't an array
+		public int IsFixedSizeArray(string type_str)
+		{
+			if (type_str.Contains ("[")) {
+				int index_opening_bracket = type_str.IndexOf ("[");
+				int index_closing_bracket = type_str.IndexOf ("]");
+				string number = type_str.Substring (index_opening_bracket+1, index_closing_bracket - index_opening_bracket-1);
+				Console.WriteLine (type_str);
+				Console.WriteLine (number);
+				if (number != "") {
+					int ret_val = -1;
+					if (int.TryParse (number, out ret_val)) {
+						return ret_val;
+					}
+				} else
+					return -1;
+			} else {
+				return -2;
+			}
+			return -1;
+		}
 		public void Parse()
 		{
 			while (!FileReader.EndOfStream) 
 			{
 				string line = FileReader.ReadLine ();
 				//Console.WriteLine (line);
-
-				if (line.Trim () != "") {
+				if(line.StartsWith("#"))
+					{
+					//DO NOTHING
+					}
+				else if (line.Trim () != "") {
 					string[] splitted = line.Split (new string[]{ " " }, StringSplitOptions.RemoveEmptyEntries);
 					if (IsArray (splitted [0])) {
+						Console.BackgroundColor = ConsoleColor.Blue;
+						Console.WriteLine (line);
+						Console.ResetColor ();
+						int fixedArraySize = IsFixedSizeArray (splitted [0]);
 						string nativeType = splitted [0].Remove (splitted [0].IndexOf ("["), 2);
 						string csType = GetPrimitiveType (splitted [0].Remove (splitted [0].IndexOf ("["), 2));
 						if (!(csType.Trim () == "")) {
@@ -194,10 +226,20 @@ namespace ROS2CSMessageGenerator
 								memberName = memberName.Split (new char[]{ '=' }) [0];
 
 							}
-							//memberName += " = new rosidl_generator_c__primitive_array_" + nativeType + "()";
-							//Console.WriteLine ("Adding member of type: " + csType + " with name: " + memberName);
+
+
 							Members.Add ("public " + csType + " " + memberName + ";");
 							MessageMember member = new MessageMember ();
+
+							if (fixedArraySize > 0) {
+								Console.BackgroundColor = ConsoleColor.Blue;
+								Console.WriteLine ("Found fixed size array");
+								Console.ResetColor ();
+								member.isFixedSizeArray = true;
+								member.fixedSizeArraySize = fixedArraySize;
+								member.message_type = nativeType;
+							}
+						
 							member.default_init = "";
 							member.name = memberName;
 							member.type = csType;
@@ -263,7 +305,7 @@ namespace ROS2CSMessageGenerator
 		}
 		public bool IsArray(string type)
 		{
-			if (type.Contains ("[]"))
+			if (type.Contains ("[") && type.Contains("]"))
 				return true;
 			return false;
 		}
