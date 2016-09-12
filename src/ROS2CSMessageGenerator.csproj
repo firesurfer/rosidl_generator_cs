@@ -10,6 +10,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
+    <StartupObject>ROS2CSMessageGenerator.ExampleInvoker</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,6 +42,13 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Generator.cs" />
+    <Compile Include="MessageParser.cs" />
+    <Compile Include="MessageDescription.cs" />
+    <Compile Include="MessageMemberDescription.cs" />
+    <Compile Include="ExampleInvoker.cs" />
+    <Compile Include="IMessageCodeGenerator.cs" />
+    <Compile Include="CodeDomMessageGenerator.cs" />
+    <Compile Include="RoselynMessageGenerator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
