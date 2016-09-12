@@ -82,9 +82,9 @@ namespace ROS2CSMessageGenerator
 			ClassString.AppendLine ("    [StructLayout (LayoutKind.Sequential)]");
 
 			if(!IsService)
-				ClassString.AppendLine ("    public struct " + StructName + ":IRosMessage");
+				ClassString.AppendLine ("    public unsafe struct " + StructName + ":IRosMessage");
 			else
-				ClassString.AppendLine ("    public struct " + StructName + ":IRosService");
+				ClassString.AppendLine ("    public unsafe struct " + StructName + ":IRosService");
 
 			ClassString.AppendLine ("    {");
 			if (!IsService) {
@@ -120,7 +120,7 @@ namespace ROS2CSMessageGenerator
 				WrapperClassString.AppendLine ("    namespace srv");
 			WrapperClassString.AppendLine ("    {");
 			WrapperClassString.AppendLine ("        [StructLayout (LayoutKind.Sequential)]");
-			WrapperClassString.AppendLine ("        public unsafe class " + Name + ":MessageWrapper");
+			WrapperClassString.AppendLine ("        public class " + Name + ":MessageWrapper");
 			WrapperClassString.AppendLine ("        {");
 			WrapperClassString.AppendLine ("           private bool disposed = false;");
 			WrapperClassString.AppendLine ("           private " + StructName+" __data;");
@@ -217,8 +217,9 @@ namespace ROS2CSMessageGenerator
 						Console.WriteLine (line);
 						Console.ResetColor ();
 						int fixedArraySize = IsFixedSizeArray (splitted [0]);
-						string nativeType = splitted [0].Remove (splitted [0].IndexOf ("["), 2);
-						string csType = GetPrimitiveType (splitted [0].Remove (splitted [0].IndexOf ("["), 2));
+						string nativeType = splitted [0].Remove (splitted [0].IndexOf ("["), splitted[0].IndexOf("]")-splitted[0].IndexOf("[")+1);
+						string csType = GetPrimitiveType (nativeType);
+						Console.WriteLine (nativeType);
 						if (!(csType.Trim () == "")) {
 							csType = "rosidl_generator_c__primitive_array_" + nativeType;
 							string memberName = splitted [1];
@@ -233,16 +234,18 @@ namespace ROS2CSMessageGenerator
 
 							if (fixedArraySize > 0) {
 								Console.BackgroundColor = ConsoleColor.Blue;
-								Console.WriteLine ("Found fixed size array");
+								Console.WriteLine ("Found fixed size array" + GetPrimitiveType (nativeType));
 								Console.ResetColor ();
 								member.isFixedSizeArray = true;
 								member.fixedSizeArraySize = fixedArraySize;
-								member.message_type = nativeType;
+								member.message_type = GetPrimitiveType (nativeType);
+								member.type = GetPrimitiveType (nativeType);
+								member.name = memberName;
+							} else {
+								member.default_init = "";
+								member.name = memberName;
+								member.type = csType;
 							}
-						
-							member.default_init = "";
-							member.name = memberName;
-							member.type = csType;
 							MessageMembers.Add (member);
 						}
 					} else if (IsPrimitiveType (splitted [0])) {
@@ -360,10 +363,16 @@ namespace ROS2CSMessageGenerator
 			StringBuilder WrapperClassInSyncExtensions = new StringBuilder ();
 			//TODO Remember to free in case of assignement
 			foreach (var item in MessageMembers) {
-				if(!item.isNested)
+				if (!item.isNested) {
+					if(!item.isFixedSizeArray)
 					ClassString.AppendLine ("         " + item.ToString ());
-				else 
-					ClassString.AppendLine ("         public " +item.type  + "_t " + item.name + ";");
+					else
+						ClassString.AppendLine("         public fixed " + item.message_type + " " + item.name + "["+item.fixedSizeArraySize +"];");
+
+				} else {
+					ClassString.AppendLine ("         public " + item.type + "_t " + item.name + ";");
+				}
+				Console.WriteLine (item.name + " " + item.type);
 				switch (item.type) {
 				case "rosidl_generator_c__String":
 					WrapperClassString.AppendLine ("        public string "+ item.name);
@@ -467,13 +476,39 @@ namespace ROS2CSMessageGenerator
 						WrapperClassConstructorExtensions.AppendLine (        "__" + item.name + " =new " + item.type + "(" +" ref __data."+item.name+ ");");
 					}
 					
-					WrapperClassString.AppendLine ("        public " + item.type + " " + item.name);
-					WrapperClassString.AppendLine ("        {");
+
 					if (!item.isNested) {
-						
-						WrapperClassString.AppendLine ("            get{return __data." + item.name + ";}");
-						WrapperClassString.AppendLine ("            set{__data." + item.name + " = value;}");
+
+						if (item.isFixedSizeArray) {
+							WrapperClassString.AppendLine ("        public  " + item.type + "[] " + item.name);
+							WrapperClassString.AppendLine ("        {");
+							WrapperClassString.AppendLine ("            get{unsafe{" + item.type + "[] temp = new " + item.type + "[" + item.fixedSizeArraySize + "];");
+							WrapperClassString.AppendLine ("               fixed(" + item.type + "* buffer = __data." + item.name + "){");
+							WrapperClassString.AppendLine ("                   for(int i=0; i < " + item.fixedSizeArraySize + ";i++)");
+							WrapperClassString.AppendLine ("                   {");
+							WrapperClassString.AppendLine ("                      temp[i] = buffer[i];");
+							WrapperClassString.AppendLine ("                   }");
+							WrapperClassString.AppendLine ("               }");
+							WrapperClassString.AppendLine ("               return temp;");
+						    WrapperClassString.AppendLine ("              }}");
+							WrapperClassString.AppendLine ("            set{unsafe{" + item.type + "[] temp=value;");
+							//TODO add size check
+							WrapperClassString.AppendLine ("               fixed(" + item.type + "* buffer = __data." + item.name + "){");
+							WrapperClassString.AppendLine ("                   for(int i=0; i < temp.Length;i++)");
+							WrapperClassString.AppendLine ("                   {");
+							WrapperClassString.AppendLine ("                      buffer[i] = temp[i];");
+							WrapperClassString.AppendLine ("                   }");
+							WrapperClassString.AppendLine ("               }");
+							WrapperClassString.AppendLine ("               }}");
+						} else {
+							WrapperClassString.AppendLine ("        public  " + item.type + " " + item.name);
+							WrapperClassString.AppendLine ("        {");
+							WrapperClassString.AppendLine ("            get{ return __data." + item.name + ";}");
+							WrapperClassString.AppendLine ("            set{__data." + item.name + " = value;}");
+						}
 					} else {
+						WrapperClassString.AppendLine ("        public  " + item.type + " " + item.name);
+						WrapperClassString.AppendLine ("        {");
 						WrapperClassString.AppendLine ("            get{return __"+item.name+"; }");
 						WrapperClassSyncExtensions.AppendLine ("           __data." + item.name + "=__" + item.name + ".Data;");
 						WrapperClassSyncExtensions.AppendLine ("           __"+item.name+ ".SyncDataOut();");
