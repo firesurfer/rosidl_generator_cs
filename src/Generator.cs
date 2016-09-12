@@ -186,8 +186,7 @@ namespace ROS2CSMessageGenerator
 				int index_opening_bracket = type_str.IndexOf ("[");
 				int index_closing_bracket = type_str.IndexOf ("]");
 				string number = type_str.Substring (index_opening_bracket+1, index_closing_bracket - index_opening_bracket-1);
-				Console.WriteLine (type_str);
-				Console.WriteLine (number);
+
 				if (number != "") {
 					int ret_val = -1;
 					if (int.TryParse (number, out ret_val)) {
@@ -205,7 +204,7 @@ namespace ROS2CSMessageGenerator
 			while (!FileReader.EndOfStream) 
 			{
 				string line = FileReader.ReadLine ();
-				//Console.WriteLine (line);
+
 				if(line.StartsWith("#"))
 					{
 					//DO NOTHING
@@ -213,13 +212,11 @@ namespace ROS2CSMessageGenerator
 				else if (line.Trim () != "") {
 					string[] splitted = line.Split (new string[]{ " " }, StringSplitOptions.RemoveEmptyEntries);
 					if (IsArray (splitted [0])) {
-						Console.BackgroundColor = ConsoleColor.Blue;
-						Console.WriteLine (line);
-						Console.ResetColor ();
+						
 						int fixedArraySize = IsFixedSizeArray (splitted [0]);
 						string nativeType = splitted [0].Remove (splitted [0].IndexOf ("["), splitted[0].IndexOf("]")-splitted[0].IndexOf("[")+1);
 						string csType = GetPrimitiveType (nativeType);
-						Console.WriteLine (nativeType);
+
 						if (!(csType.Trim () == "")) {
 							csType = "rosidl_generator_c__primitive_array_" + nativeType;
 							string memberName = splitted [1];
@@ -234,7 +231,7 @@ namespace ROS2CSMessageGenerator
 
 							if (fixedArraySize > 0) {
 								Console.BackgroundColor = ConsoleColor.Blue;
-								Console.WriteLine ("Found fixed size array" + GetPrimitiveType (nativeType));
+
 								Console.ResetColor ();
 								member.isFixedSizeArray = true;
 								member.fixedSizeArraySize = fixedArraySize;
@@ -372,7 +369,7 @@ namespace ROS2CSMessageGenerator
 				} else {
 					ClassString.AppendLine ("         public " + item.type + "_t " + item.name + ";");
 				}
-				Console.WriteLine (item.name + " " + item.type);
+			
 				switch (item.type) {
 				case "rosidl_generator_c__String":
 					WrapperClassString.AppendLine ("        public string "+ item.name);
