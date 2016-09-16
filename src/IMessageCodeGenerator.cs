@@ -6,7 +6,7 @@ namespace ROS2CSMessageGenerator
 	{
 		void GenerateCode(MessageDescription description);
 		string GetGeneratedCode();
-		bool TestCompileGeneratedCode();
+		bool TestCompileGeneratedCode(string rclcsPath, string[] referencesPaths);
 	}
 }
 

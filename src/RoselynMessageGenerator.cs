@@ -15,7 +15,7 @@ namespace ROS2CSMessageGenerator
 		{
 			return "";
 		}
-		public bool TestCompileGeneratedCode()
+		public bool TestCompileGeneratedCode(string rclcsPath, string[] referencesPaths)
 		{
 			return false;
 		}
