@@ -7,12 +7,21 @@ project(rosidl_generator_cs C)
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 
+if(NOT Win32)
 add_custom_target(ros2cs_message_generator ALL
 	COMMAND 
 	"xbuild" ROS2CSMessageGenerator.csproj /property:OutputPath=${CMAKE_BINARY_DIR} /property:AssemblyName=rosidl_generator_cs 
 	WORKING_DIRECTORY
 	${CMAKE_SOURCE_DIR}/src
 )
+else()
+add_custom_target(ros2cs_message_generator ALL
+	COMMAND 
+	"msbuild" ROS2CSMessageGenerator.csproj /property:OutputPath=${CMAKE_BINARY_DIR} /property:AssemblyName=rosidl_generator_cs 
+	WORKING_DIRECTORY
+	${CMAKE_SOURCE_DIR}/src
+)
+endif(NOT Win32)
 
 ament_export_dependencies(rosidl_cmake)
 

@@ -28,21 +28,41 @@ foreach(_idl_file ${rosidl_generate_interfaces_cs_IDL_FILES})
   
   if(_extension STREQUAL ".msg" OR _extension STREQUAL ".srv")
 	if(BUILD_TESTING)
-	  add_custom_target(
-	    "generate_cs_messages_${_msg_name}" ALL
-	    COMMAND mono ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
-	    COMMENT "Generating CS code for ${_msg_name}"
-	    DEPENDS ros2cs_message_generator
-	    VERBATIM
-	  )
+		if(NOT Win32)
+	  		add_custom_target(
+	   			"generate_cs_messages_${_msg_name}" ALL
+	    			COMMAND mono ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
+	    			COMMENT "Generating CS code for ${_msg_name}"
+	    			DEPENDS ros2cs_message_generator
+	    			VERBATIM
+	  			)
+		else()
+			add_custom_target(
+	   			"generate_cs_messages_${_msg_name}" ALL
+	    			COMMAND ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
+	    			COMMENT "Generating CS code for ${_msg_name}"
+	    			DEPENDS ros2cs_message_generator
+	    			VERBATIM
+	  			)
+		endif()
 	list(APPEND _message_targets "generate_cs_messages_${_msg_name}")
 	else()
-	  add_custom_target(
-	    "generate_cs_messages_${_msg_name}" ALL
-	    COMMAND mono ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
-	    COMMENT "Generating CS code for ${_msg_name}"
-	    VERBATIM
-	  )
+		if(NOT Win32)
+			add_custom_target(
+	    			"generate_cs_messages_${_msg_name}" ALL
+	    			COMMAND mono ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
+	    			COMMENT "Generating CS code for ${_msg_name}"
+	    			VERBATIM
+	  			)
+		else()
+			add_custom_target(
+	    			"generate_cs_messages_${_msg_name}" ALL
+	    			COMMAND  ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
+	    			COMMENT "Generating CS code for ${_msg_name}"
+	    			VERBATIM
+	  			)
+		endif()
+	  
 	endif()
   else()
     list(REMOVE_ITEM rosidl_generate_interfaces_cs_IDL_FILES ${_idl_file})
@@ -50,7 +70,7 @@ foreach(_idl_file ${rosidl_generate_interfaces_cs_IDL_FILES})
  
 endforeach()
 
-
+if(NOT Win32)
 add_custom_target(
     "compile_cs_messages" ALL
     COMMAND mono ${rosidl_generator_cs_BIN} -c ${_output_path} ${_output_path}/${PROJECT_NAME}.dll
@@ -58,13 +78,22 @@ add_custom_target(
     COMMENT "Compiling generated CS Code for ${PROJECT_NAME}"
     VERBATIM
  )
- if(NOT rosidl_generate_interfaces_SKIP_INSTALL)
+else()
+add_custom_target(
+    "compile_cs_messages" ALL
+    COMMAND ${rosidl_generator_cs_BIN} -c ${_output_path} ${_output_path}/${PROJECT_NAME}.dll
+    DEPENDS ${_message_targets}
+    COMMENT "Compiling generated CS Code for ${PROJECT_NAME}"
+    VERBATIM
+ )
+endif()
+if(NOT rosidl_generate_interfaces_SKIP_INSTALL)
   install(
-    FILES 
-	${_output_path}/${PROJECT_NAME}.dll 
-	#$ENV{AMENT_PREFIX_PATH}/lib/rclcs.dll
-    DESTINATION 
-	"lib/"
+   	 FILES 
+		${_output_path}/${PROJECT_NAME}.dll 
+		#$ENV{AMENT_PREFIX_PATH}/lib/rclcs.dll
+    	DESTINATION 
+		"lib/"
     )
  endif()
 
