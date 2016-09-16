@@ -83,7 +83,7 @@ namespace ROS2CSMessageGenerator
 		{
 
 			CompilerParameters cp = new CompilerParameters ();
-			cp.CompilerOptions += " /unsafe /warn";
+			cp.CompilerOptions += " /unsafe /warn:0";
 
 		
 			CSharpCodeProvider provider = new CSharpCodeProvider ();
