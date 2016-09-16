@@ -90,7 +90,13 @@ namespace ROS2CSMessageGenerator
 
 
 			string rclcsPath = Environment.GetEnvironmentVariable ("AMENT_PREFIX_PATH");
-			string firstPathElement = rclcsPath.Split (new char[]{ ':' }) [0];
+			char separator = ':';
+			if (Type.GetType ("Mono.Runtime") != null) {
+				separator = ':';
+			} else {
+				separator = ';';
+			}
+			string firstPathElement = rclcsPath.Split (new char[]{ separator}) [0];
 			rclcsPath = firstPathElement;
 
 			string ros2libPath = Path.Combine (rclcsPath, "lib");
