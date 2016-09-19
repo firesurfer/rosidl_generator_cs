@@ -96,24 +96,26 @@ namespace ROS2CSMessageGenerator
 			} else {
 				separator = ';';
 			}
-			string firstPathElement = rclcsPath.Split (new char[]{ separator}) [0];
-			rclcsPath = firstPathElement;
+			string[]  ament_prefix_paths = rclcsPath.Split (new char[]{ separator});
 
-			string ros2libPath = Path.Combine (rclcsPath, "lib");
-			cp.ReferencedAssemblies.Add ("System.dll");
-			foreach (var item in Directory.GetFiles(ros2libPath)) {
-				if (Path.GetExtension (item) == ".dll") {
-					try {
-						System.Reflection.AssemblyName testAssembly = System.Reflection.AssemblyName.GetAssemblyName (item);
-						cp.ReferencedAssemblies.Add (item);
+			foreach (var searchPath in ament_prefix_paths) {
+				
+			
+				string ros2libPath = Path.Combine (searchPath, "lib");
+				cp.ReferencedAssemblies.Add ("System.dll");
+				foreach (var item in Directory.GetFiles(ros2libPath)) {
+					if (Path.GetExtension (item) == ".dll") {
+						try {
+							System.Reflection.AssemblyName testAssembly = System.Reflection.AssemblyName.GetAssemblyName (item);
+							cp.ReferencedAssemblies.Add (item);
 
-					} catch (Exception ex) {
+						} catch (Exception ex) {
 						
-					}
+						}
 
+					}
 				}
 			}
-
 			cp.GenerateExecutable = false;
 			cp.OutputAssembly = AssemblyPath;
 
