@@ -100,8 +100,11 @@ namespace ROS2CSMessageGenerator
 
 			foreach (var searchPath in ament_prefix_paths) {
 				
-			
-				string ros2libPath = Path.Combine (searchPath, "lib");
+				string ros2libPath = "";
+				if(Type.GetType("Mono.Runtime") == null)
+					 ros2libPath = Path.Combine (searchPath, "bin");
+				else 
+					 ros2libPath = Path.Combine (searchPath, "lib");
 				cp.ReferencedAssemblies.Add ("System.dll");
 				foreach (var item in Directory.GetFiles(ros2libPath)) {
 					if (Path.GetExtension (item) == ".dll") {
