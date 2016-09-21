@@ -89,7 +89,7 @@ namespace ROS2CSMessageGenerator
 			ClassString.AppendLine ("    {");
 			string libname = "lib" + Namespace + "__rosidl_typesupport_introspection_c.so";
 			if (Type.GetType ("Mono.Runtime") == null) {
-				libname = Namespace + "__rosidl_typesupport_introspection_c.dll";
+				libname = Namespace + "__rosidl_generator_c.dll";
 			}
 			if (!IsService) {
 				ClassString.AppendLine ("        [DllImport (\""+libname+"\")]");
