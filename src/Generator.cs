@@ -87,12 +87,16 @@ namespace ROS2CSMessageGenerator
 				ClassString.AppendLine ("    public unsafe struct " + StructName + ":IRosService");
 
 			ClassString.AppendLine ("    {");
+			string libname = "lib" + Namespace + "__rosidl_typesupport_introspection_c.so";
+			if (Type.GetType ("Mono.Runtime") == null) {
+				libname = Namespace + "__rosidl_typesupport_introspection_c.dll";
+			}
 			if (!IsService) {
-				ClassString.AppendLine ("        [DllImport (\"lib" + Namespace + "__rosidl_typesupport_introspection_c.so\")]");
+				ClassString.AppendLine ("        [DllImport (\""+libname+"\")]");
 				ClassString.AppendLine ("        public static extern IntPtr " + GetTypeSupportMessageFunctionName () + "();");
 			} else {
 				//TODO Generate correct function name
-				ClassString.AppendLine ("        [DllImport (\"lib" + Namespace + "__rosidl_typesupport_introspection_c.so\")]");
+				ClassString.AppendLine ("        [DllImport (\""+libname+"\")]");
 				ClassString.AppendLine ("        public static extern IntPtr " + GetTypeSupportServiceFunctionName () + "();");
 			}
 			ClassString.AppendLine ("");
