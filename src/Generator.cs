@@ -123,7 +123,7 @@ namespace ROS2CSMessageGenerator
 			else
 				WrapperClassString.AppendLine ("    namespace srv");
 			WrapperClassString.AppendLine ("    {");
-			WrapperClassString.AppendLine ("        [StructLayout (LayoutKind.Sequential)]");
+			//WrapperClassString.AppendLine ("        [StructLayout (LayoutKind.Sequential)]");
 			WrapperClassString.AppendLine ("        public class " + Name + ":MessageWrapper");
 			WrapperClassString.AppendLine ("        {");
 			WrapperClassString.AppendLine ("           private bool disposed = false;");
