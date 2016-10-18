@@ -106,16 +106,18 @@ namespace ROS2CSMessageGenerator
 				else 
 					 ros2libPath = Path.Combine (searchPath, "lib");
 				cp.ReferencedAssemblies.Add ("System.dll");
-				foreach (var item in Directory.GetFiles(ros2libPath)) {
-					if (Path.GetExtension (item) == ".dll") {
-						try {
-							System.Reflection.AssemblyName testAssembly = System.Reflection.AssemblyName.GetAssemblyName (item);
-							cp.ReferencedAssemblies.Add (item);
+				if (Directory.Exists (ros2libPath)) {
+					foreach (var item in Directory.GetFiles(ros2libPath)) {
+						if (Path.GetExtension (item) == ".dll") {
+							try {
+								System.Reflection.AssemblyName testAssembly = System.Reflection.AssemblyName.GetAssemblyName (item);
+								cp.ReferencedAssemblies.Add (item);
 
-						} catch (Exception ex) {
+							} catch (Exception ex) {
 						
-						}
+							}
 
+						}
 					}
 				}
 			}
