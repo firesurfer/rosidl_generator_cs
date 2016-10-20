@@ -18,6 +18,7 @@ namespace ROS2CSMessageGenerator
 			Console.WriteLine ("     mono ROS2CSMessageGenerator.exe -m <path to message file> <package name> <output path>");
 			Console.WriteLine ("  Compile generated cs files to assembly:");
 			Console.WriteLine ("     mono ROS2CSMessageGenerator.exe -c <directory with cs files> <path to resulting assembly>");
+			
 
 		}
 
@@ -45,15 +46,32 @@ namespace ROS2CSMessageGenerator
 				}
 				if (Path.GetExtension (messageFile) == ".srv")
 					return;
+				
+				string name = Path.GetFileName (messageFile);
+				name = name.Replace (Path.GetExtension (messageFile), "");
+				MessageDescription description = new MessageDescription (messageFile, packageName);
+				MessageParser parser = new MessageParser (description);
+				try {
+					parser.Parse();
+				} catch (Exception ex) {
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine ("Exception parsing: " + messageFile);
+					Console.ResetColor ();
+					Console.WriteLine (ex.ToString ());
+					Environment.Exit (1);
+				}
 
-				CsClassGenerator generator = new CsClassGenerator (messageFile, packageName);
-				generator.Parse ();
-				generator.FinalizeClass ();
+				IMessageCodeGenerator codeGenerator = new CodeDomMessageGenerator ();
+				codeGenerator.GenerateCode (description);
+
+				//CsClassGenerator generator = new CsClassGenerator (messageFile, packageName);
+				//generator.Parse ();
+				//generator.FinalizeClass ();
 				//Console.WriteLine (generator.GetResultingClass ());
 				if (!IsService)
-					System.IO.File.WriteAllText (Path.Combine (outputPath, generator.Name + "_msg.cs"), generator.GetResultingClass ());
+					System.IO.File.WriteAllText (Path.Combine (outputPath, description.Name + "_msg.cs"), codeGenerator.GetGeneratedCode ());
 				else
-					System.IO.File.WriteAllText (Path.Combine (outputPath, generator.Name + "_srv.cs"), generator.GetResultingClass ());
+					System.IO.File.WriteAllText (Path.Combine (outputPath, description.Name + "_srv.cs"), codeGenerator.GetGeneratedCode ());
 			} else if (args [0] == "-c") {
 				if (args.Length < 3) {
 					PrintHelp ();

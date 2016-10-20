@@ -104,7 +104,7 @@ namespace ROS2CSMessageGenerator
 		private string AddUnsafeStatementToStruct(string code)
 		{
 			int struct_pos = code.IndexOf ("struct");
-			code = code.Insert (struct_pos, " unsafe ");
+			code = code.Insert (struct_pos, "unsafe ");
 			return code;
 		}
 		/// <summary>
@@ -158,7 +158,7 @@ namespace ROS2CSMessageGenerator
 				//For a fixed size array we need a customMeber
 				CodeSnippetTypeMember customMember = new CodeSnippetTypeMember ();
 				//With some custom code
-				customMember.Text = "        public fixed " + member.MemberType + " " + member.Name + "["+member.FixedArraySize.ToString()+"] ;";
+				customMember.Text = "        public fixed " + member.MemberType + " " + member.Name + "["+member.FixedArraySize.ToString()+"];\n";
 				//Add this code to the struct
 				MessageStruct.Members.Add (customMember);
 			}

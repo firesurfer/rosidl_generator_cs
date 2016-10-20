@@ -15,7 +15,7 @@ namespace ROS2CSMessageGenerator
 			this.Description = _Description;
 
 			//Fill type conversion table
-			RosCsTypes.Add ("bool", "byte");
+			RosCsTypes.Add ("bool", "System.Byte");
 			RosCsTypes.Add ("byte", "System.Byte");
 			RosCsTypes.Add ("int8", "System.Byte");
 			RosCsTypes.Add ("uint8", "System.SByte");
@@ -25,8 +25,8 @@ namespace ROS2CSMessageGenerator
 			RosCsTypes.Add ("uint32", "System.UInt32");
 			RosCsTypes.Add ("int64", "System.Int64");
 			RosCsTypes.Add ("uint64", "System.UInt64");
-			RosCsTypes.Add ("float", "System.Single");
-			RosCsTypes.Add ("double", "System.Double");
+			RosCsTypes.Add ("float32", "System.Single");
+			RosCsTypes.Add ("float64", "System.Double");
 			RosCsTypes.Add ("string", "rosidl_generator_c__String");
 		}
 
@@ -54,6 +54,7 @@ namespace ROS2CSMessageGenerator
 				else {
 					//Create a new MessageMember and fill it
 					MessageMemberDescription MessageMember = new MessageMemberDescription ();
+
 					MessageMember.Name = GetMemberName (LastLine);
 					MessageMember.DefaultInitialisation = GetDefaultInitialisation (LastLine);
 					MessageMember.IsArray = IsArray (LastLine);
@@ -189,6 +190,8 @@ namespace ROS2CSMessageGenerator
 			string MemberName = "";
 			//Split the line by empty space
 			string[] splitted = Line.Split (new string[]{ " " }, StringSplitOptions.RemoveEmptyEntries);
+			if (splitted.Length < 2)
+				return "";
 			//Check if there's a default initialisation
 			if (splitted [1].Contains ("=")) {
 				//And remove it
@@ -272,7 +275,8 @@ namespace ROS2CSMessageGenerator
 			if (RosCsTypes.ContainsKey (RosType)) {
 				CsType = RosCsTypes [RosType];
 			} else {
-				throw new ArgumentException ("The given type wasn't a primitive type");
+				//throw new ArgumentException ("The given type wasn't a primitive type: " + RosType);
+				return "";
 			}
 			return CsType;
 

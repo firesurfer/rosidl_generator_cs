@@ -7,13 +7,13 @@ namespace ROS2CSMessageGenerator
 	{
 		public static void Main (string[] args)
 		{
-			//This is a example for myself as long as I change the Program.cs ;)
+			//This is a example for myself as long as I dont't change the Program.cs ;)
 			MessageDescription mD = new MessageDescription("Dummy", "test_msgs", "int16 testint\n" +
 				"int32 test32int\n" +
 				"string teststring\n" +
 				"string[] teststringarray\n" +
 				"int16[] testintarray\n" +
-				"int32[4] fixedtesttest234test\n" +
+				"int32[4] fixedtestint32\n" +
 				"int8[] thisisaint8array\n" +
 				"builtin_interfaces/Time thisisatime\n", false);
 
