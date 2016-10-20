@@ -13,8 +13,17 @@ namespace ROS2CSMessageGenerator
 
 		public string OutputFile { get; set; }
 		public bool IsService {get;set;}
+		/// <summary>
+		/// Gets or sets the message name.
+		/// </summary>
+		/// <value>The name.</value>
 		public string Name { get; set; }
 		public string Namespace { get; set; }
+		/// <summary>
+		/// Gets or sets the type name of the struct.
+		/// The struct name ist the message name + "_T".
+		/// </summary>
+		/// <value>The name of the struct.</value>
 		public string StructName { get; set; }
 		public DateTime ParsingDate { get; set; }
 

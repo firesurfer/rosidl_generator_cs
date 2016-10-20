@@ -11,9 +11,11 @@ namespace ROS2CSMessageGenerator
 			MessageDescription mD = new MessageDescription("Dummy", "test_msgs", "int16 testint\n" +
 				"int32 test32int\n" +
 				"string teststring\n" +
+				"string[] teststringarray\n" +
 				"int16[] testintarray\n" +
 				"int32[4] fixedtesttest234test\n" +
-				"int8[] thisisaint8array\n", false);
+				"int8[] thisisaint8array\n" +
+				"builtin_interfaces/Time thisisatime\n", false);
 
 
 			MessageParser parser = new MessageParser (mD);
@@ -23,7 +25,7 @@ namespace ROS2CSMessageGenerator
 			}
 			IMessageCodeGenerator codeGenerator = new CodeDomMessageGenerator ();
 			codeGenerator.GenerateCode (mD);
-			System.IO.File.WriteAllText ("/home/firesurfer/Test.txt", codeGenerator.GetGeneratedCode ());
+			System.IO.File.WriteAllText ("/home/firesurfer/Test.cs", codeGenerator.GetGeneratedCode ());
 			string[] splittedLines = codeGenerator.GetGeneratedCode ().Split (new string[]{ "\n" },StringSplitOptions.None);
 			int count = 0;
 			foreach (var item in splittedLines) {
@@ -31,7 +33,7 @@ namespace ROS2CSMessageGenerator
 				count++;
 			}
 
-			codeGenerator.TestCompileGeneratedCode ("/home/firesurfer/workspace/ros2_ws/install/lib/rclcs.dll", new string[]{ });
+			codeGenerator.TestCompileGeneratedCode ("/home/firesurfer/workspace/ros2_ws/install/lib/rclcs.dll", new string[]{ "/home/firesurfer/workspace/ros2_ws/install/lib/builtin_interfaces.dll"});
 			CodeDomMessageGenerator domGenerator = codeGenerator as CodeDomMessageGenerator;
 			if (domGenerator.GetLastCompilationResults ().Errors.Count > 0) {
 				foreach (CompilerError ce in domGenerator.GetLastCompilationResults().Errors) {

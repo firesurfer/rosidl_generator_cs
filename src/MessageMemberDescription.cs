@@ -9,6 +9,7 @@ namespace ROS2CSMessageGenerator
 	{
 		public string Name{ get; set; }
 		public string MemberType{ get; set; }
+		public string ArrayReturnType { get; set;}
 		public string RosType { get; set; }
 		public string DefaultInitialisation { get; set; }
 		public bool IsArray { get; set; }

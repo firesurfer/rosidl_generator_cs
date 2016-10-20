@@ -68,7 +68,7 @@ namespace ROS2CSMessageGenerator
 						string NestedNamespace = MessageMember.RosType.Split (new string[]{ "/" }, StringSplitOptions.RemoveEmptyEntries) [0];
 						string NestedType = MessageMember.RosType.Split (new string[]{ "/" }, StringSplitOptions.RemoveEmptyEntries) [1];
 						//Build the C# type (The full qualified name we can find the generated message afterwards")
-						string CsType = NestedNamespace + ".msg" + NestedType;
+						string CsType = NestedNamespace + ".msg." + NestedType + "_t";
 						MessageMember.MemberType = CsType;
 					} else if (MessageMember.IsArray) {
 						//It's an array
@@ -76,8 +76,11 @@ namespace ROS2CSMessageGenerator
 							//Unbounded array
 							//Get the primitive type of the array and make it an array type
 							string CsType = "rosidl_generator_c__primitive_array_" + MessageMember.RosType;
+
 							//And now let it be the type
 							MessageMember.MemberType = CsType;
+							MessageMember.ArrayReturnType = GetCsPrimitiveType (MessageMember.RosType);
+
 						} else {
 							//Fixed size array
 							//It's simply the primitive type
@@ -111,9 +114,19 @@ namespace ROS2CSMessageGenerator
 		/// <param name="Line">Line.</param>
 		public bool IsArray (string Line)
 		{
-			return Line.Contains ("[") && Line.Contains ("]");
+			//We treat a string like an array
+			return Line.Contains ("[") && Line.Contains ("]") ;
 		}
 
+		/// <summary>
+		/// Checks if the given line specifies a string
+		/// </summary>
+		/// <returns><c>true</c> if the Line specifies a string; otherwise, <c>false</c>.</returns>
+		/// <param name="Line">Line.</param>
+		public bool IsString(string Line)
+		{
+			return Line.StartsWith ("string");
+		}
 		/// <summary>
 		/// Checks if the given line specifies a fixed size array
 		/// </summary>
@@ -133,6 +146,9 @@ namespace ROS2CSMessageGenerator
 		/// <param name="Line">Line.</param>
 		public int GetFixedArraySize (string Line)
 		{
+			//Check if it's a string because we need to treat strings like arrays
+			if (IsString (Line))
+				return -2;
 			//First check if it's an array at all
 			if (IsArray (Line)) {
 				//Extract the size number
