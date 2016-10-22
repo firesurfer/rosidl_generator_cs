@@ -65,6 +65,7 @@ namespace ROS2CSMessageGenerator
 
 					//Now we make difference between arrays, nested types and primitive types
 					if (MessageMember.IsNested) {
+						Console.WriteLine ("Assuming it is a nested type: " + LastLine);
 						//It's a nested type
 						string NestedNamespace = MessageMember.RosType.Split (new string[]{ "/" }, StringSplitOptions.RemoveEmptyEntries) [0];
 						string NestedType = MessageMember.RosType.Split (new string[]{ "/" }, StringSplitOptions.RemoveEmptyEntries) [1];
@@ -72,6 +73,8 @@ namespace ROS2CSMessageGenerator
 						string CsType = NestedNamespace + ".msg." + NestedType + "_t";
 						MessageMember.MemberType = CsType;
 					} else if (MessageMember.IsArray) {
+						//TODO Nested Arrays....I forgot about them....
+						Console.WriteLine ("Assuming it is an array type: " + LastLine);
 						//It's an array
 						if (!MessageMember.IsFixedSizeArray) {
 							//Unbounded array
@@ -88,10 +91,19 @@ namespace ROS2CSMessageGenerator
 							MessageMember.MemberType = GetCsPrimitiveType (MessageMember.RosType);
 						}
 
-					} else {
+					} else if(IsPrimitiveType(MessageMember.RosType)){
+						Console.WriteLine ("Assuming it is a primitve type: " + LastLine);
 						//It's a primitive type
 						string CsType = GetCsPrimitiveType (MessageMember.RosType);
 						MessageMember.MemberType = CsType;
+					} else {
+						Console.ForegroundColor = ConsoleColor.Blue;
+						Console.WriteLine ("Unknown Type: " + MessageMember.RosType + " : " + LastLine);
+						Console.WriteLine ("Trying the type as a nested type");
+						MessageMember.IsNested = true;
+						MessageMember.MemberType = MessageMember.RosType;
+						Console.ResetColor ();
+						continue;
 					}
 					Description.AddMemberDescription (MessageMember);
 				}
@@ -275,8 +287,10 @@ namespace ROS2CSMessageGenerator
 			if (RosCsTypes.ContainsKey (RosType)) {
 				CsType = RosCsTypes [RosType];
 			} else {
-				//throw new ArgumentException ("The given type wasn't a primitive type: " + RosType);
-				return "";
+				
+			
+				throw new ArgumentException ("The given type wasn't a primitive type: " + RosType);
+
 			}
 			return CsType;
 
