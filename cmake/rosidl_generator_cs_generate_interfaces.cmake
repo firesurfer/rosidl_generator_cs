@@ -25,38 +25,42 @@ foreach(_idl_file ${rosidl_generate_interfaces_cs_IDL_FILES})
   get_filename_component(_msg_name "${_idl_file}" NAME_WE)
   get_filename_component(_extension "${_idl_file}" EXT)
   string_camel_case_to_lower_case_underscore("${_msg_name}" _header_name)
-  
+  set(MSG_TARGET_NAME "generate_cs_messages_${_msg_name}_${PROJECT_NAME}")
+
+
   if(_extension STREQUAL ".msg" OR _extension STREQUAL ".srv")
 	if(BUILD_TESTING)
 		if(NOT WIN32)
 	  		add_custom_target(
-	   			"generate_cs_messages_${_msg_name}" ALL
+	   			    "${MSG_TARGET_NAME}" ALL
 	    			COMMAND mono ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
 	    			COMMENT "Generating CS code for ${_msg_name}"
-	    			DEPENDS ros2cs_message_generator
 	    			VERBATIM
 	  			)
+	  			if(${PROJECT_NAME} STREQUAL "rosidl_generator_cs")
+                   # add_dependencies(${MSG_TARGET_NAME} ros2cs_message_generator)
+                endif()
+	  			
 		else()
 			add_custom_target(
-	   			"generate_cs_messages_${_msg_name}" ALL
+	   			    "${MSG_TARGET_NAME}"  ALL
 	    			COMMAND ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
 	    			COMMENT "Generating CS code for ${_msg_name}"
-	    			DEPENDS ros2cs_message_generator
 	    			VERBATIM
 	  			)
 		endif()
-	list(APPEND _message_targets "generate_cs_messages_${_msg_name}")
+	list(APPEND _message_targets ${MSG_TARGET_NAME})
 	else()
 		if(NOT WIN32)
 			add_custom_target(
-	    			"generate_cs_messages_${_msg_name}" ALL
+	    			"${MSG_TARGET_NAME}"  ALL
 	    			COMMAND mono ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
 	    			COMMENT "Generating CS code for ${_msg_name}"
 	    			VERBATIM
 	  			)
 		else()
 			add_custom_target(
-	    			"generate_cs_messages_${_msg_name}" ALL
+	    			"${MSG_TARGET_NAME}"  ALL
 	    			COMMAND  ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
 	    			COMMENT "Generating CS code for ${_msg_name}"
 	    			VERBATIM
@@ -65,7 +69,7 @@ foreach(_idl_file ${rosidl_generate_interfaces_cs_IDL_FILES})
 	  
 	endif()
   else()
-    list(REMOVE_ITEM rosidl_generate_interfaces_cs_IDL_FILES ${_idl_file})
+        list(REMOVE_ITEM rosidl_generate_interfaces_cs_IDL_FILES ${_idl_file})
   endif()
  
 endforeach()

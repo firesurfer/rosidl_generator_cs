@@ -21,12 +21,12 @@ add_custom_target(ros2cs_message_generator ALL
 	WORKING_DIRECTORY
 	${CMAKE_SOURCE_DIR}/src
 )
-endif(NOT Win32)
+endif()
 
 ament_export_dependencies(rosidl_cmake)
 
 
-if(BUILD_TESTING)
+if(FALSE)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
