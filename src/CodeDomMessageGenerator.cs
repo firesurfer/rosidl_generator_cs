@@ -463,10 +463,14 @@ namespace ROS2CSMessageGenerator
 					arrayAccessProperty.Attributes = MemberAttributes.Public;
 					//Some extra stuff for string arrays
 					string dataAccessMethodName = "Array";
-					if (item.MemberType.ToLower().Contains ("string")) {
+					if (item.MemberType.ToLower ().Contains ("string")) {
 						
 						arrayAccessProperty.Type = new CodeTypeReference (typeof(string[]));
-					} else {
+					} else if (item.MemberType.ToLower ().Contains ("bool")) {
+						//Extra handling for bool
+						arrayAccessProperty.Type = new CodeTypeReference (typeof(bool[]));
+					}
+					else {
 						
 						arrayAccessProperty.Type = new CodeTypeReference (item.ArrayReturnType+ "[]");
 					}

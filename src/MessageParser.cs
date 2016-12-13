@@ -65,16 +65,33 @@ namespace ROS2CSMessageGenerator
 
 					//Now we make difference between arrays, nested types and primitive types
 					if (MessageMember.IsNested) {
-						Console.WriteLine ("Assuming it is a nested type: " + LastLine);
-						//It's a nested type
-						string NestedNamespace = MessageMember.RosType.Split (new string[]{ "/" }, StringSplitOptions.RemoveEmptyEntries) [0];
-						string NestedType = MessageMember.RosType.Split (new string[]{ "/" }, StringSplitOptions.RemoveEmptyEntries) [1];
+
+						string NestedNamespace = "";
+						string NestedType = "";
+						if (MessageMember.RosType.Contains ("/")) {
+							//It's a nested type
+							NestedNamespace = MessageMember.RosType.Split (new string[]{ "/" }, StringSplitOptions.RemoveEmptyEntries) [0];
+							NestedType = MessageMember.RosType.Split (new string[]{ "/" }, StringSplitOptions.RemoveEmptyEntries) [1];
+						} else {
+							NestedType = MessageMember.RosType;
+						}
 						//Build the C# type (The full qualified name we can find the generated message afterwards")
 						string CsType = NestedNamespace + ".msg." + NestedType + "_t";
 						MessageMember.MemberType = CsType;
-					} else if (MessageMember.IsArray) {
-						//TODO Nested Arrays....I forgot about them....
-						Console.WriteLine ("Assuming it is an array type: " + LastLine);
+						if (MessageMember.IsArray) {
+							//It's a nested array
+							Console.WriteLine ("Assuming it is a nested array: " + LastLine);
+							MessageMember.IsArray = true;
+							//MessageMember.MemberType += "[]";
+						} else {
+							Console.WriteLine ("Assuming it is a nested type: " + LastLine);
+							MessageMember.IsArray = false;
+						}
+
+						//TODO this is an ugly statement
+					} else if (MessageMember.IsArray && !MessageMember.IsNested) {
+						//TODO How can I check for a nested type without a /
+						Console.WriteLine ("Assuming it is an array type and NOT a nested type: " + LastLine);
 						//It's an array
 						if (!MessageMember.IsFixedSizeArray) {
 							//Unbounded array
@@ -240,7 +257,8 @@ namespace ROS2CSMessageGenerator
 		/// <param name="Line">Line.</param>
 		public bool IsNestedType (string Line)
 		{
-			return Line.Contains ("/");
+			return !IsPrimitiveType (GetRosMessageType (Line));
+			//return Line.Contains ("/");
 		}
 
 		/// <summary>
