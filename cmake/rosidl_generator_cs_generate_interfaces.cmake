@@ -28,8 +28,9 @@ foreach(_idl_file ${rosidl_generate_interfaces_cs_IDL_FILES})
   
   if(_extension STREQUAL ".msg" OR _extension STREQUAL ".srv")
 	if(BUILD_TESTING)
+      string(RANDOM RND_VAL)
 	  add_custom_target(
-	    "generate_cs_messages_${_msg_name}" ALL
+	    "generate_cs_messages_${_msg_name}_${RND_VAL}" ALL
 	    COMMAND mono ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
 	    COMMENT "Generating CS code for ${_msg_name}"
 	    DEPENDS ros2cs_message_generator
@@ -37,8 +38,9 @@ foreach(_idl_file ${rosidl_generate_interfaces_cs_IDL_FILES})
 	  )
 	list(APPEND _message_targets "generate_cs_messages_${_msg_name}")
 	else()
+      string(RANDOM RND_VAL)
 	  add_custom_target(
-	    "generate_cs_messages_${_msg_name}" ALL
+	    "generate_cs_messages_${_msg_name}_${RND_VAL}" ALL
 	    COMMAND mono ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
 	    COMMENT "Generating CS code for ${_msg_name}"
 	    VERBATIM
