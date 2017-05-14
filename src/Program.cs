@@ -39,8 +39,10 @@ namespace ROS2CSMessageGenerator
 				string outputPath = args [3];
 				if (!Directory.Exists (outputPath))
 					Directory.CreateDirectory (outputPath);
-					
+
+				Console.ForegroundColor = ConsoleColor.Blue;
 				Console.WriteLine ("Parsing message file: " + messageFile);
+				Console.ResetColor();
 				if (messageFile.Contains ("Request") || messageFile.Contains ("Response")) {
 					IsService = true;
 				}
@@ -94,6 +96,7 @@ namespace ROS2CSMessageGenerator
 			} else {
 				PrintHelp ();
 			}
+			Console.WriteLine("");
 
 		}
 

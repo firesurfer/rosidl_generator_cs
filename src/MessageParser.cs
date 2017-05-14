@@ -16,6 +16,7 @@ namespace ROS2CSMessageGenerator
 
 			//Fill type conversion table
 			RosCsTypes.Add ("bool", "System.Byte");
+			RosCsTypes.Add ("char", "System.Char");
 			RosCsTypes.Add ("byte", "System.Byte");
 			RosCsTypes.Add ("int8", "System.Byte");
 			RosCsTypes.Add ("uint8", "System.SByte");
@@ -59,6 +60,7 @@ namespace ROS2CSMessageGenerator
 					MessageMember.DefaultInitialisation = GetDefaultInitialisation (LastLine);
 					MessageMember.IsArray = IsArray (LastLine);
 					MessageMember.IsFixedSizeArray = IsFixedSizeArray (LastLine);
+					MessageMember.IsBoundedArray = IsBoundedArray(LastLine);
 					MessageMember.FixedArraySize = GetFixedArraySize (LastLine);
 					MessageMember.IsNested = IsNestedType (LastLine);
 					MessageMember.RosType = GetRosMessageType (LastLine);
@@ -77,21 +79,26 @@ namespace ROS2CSMessageGenerator
 						}
 						//Build the C# type (The full qualified name we can find the generated message afterwards")
 						string CsType = NestedNamespace + ".msg." + NestedType + "_t";
+						//Fix in case the type is in the same namespace
+						if (CsType.StartsWith(".msg."))
+							CsType = CsType.Remove(0, 5);
+						
 						MessageMember.MemberType = CsType;
+
+						//Just some debug outputs
 						if (MessageMember.IsArray) {
 							//It's a nested array
-							Console.WriteLine ("Assuming it is a nested array: " + LastLine);
-							MessageMember.IsArray = true;
-							//MessageMember.MemberType += "[]";
+							Console.WriteLine ("Assuming"+ MessageMember.RosType + "  is a nested array: " + LastLine);
+
 						} else {
-							Console.WriteLine ("Assuming it is a nested type: " + LastLine);
-							MessageMember.IsArray = false;
+							Console.WriteLine ("Assuming "+ MessageMember.RosType + "  is a nested type: " + LastLine);
+
 						}
 
 						//TODO this is an ugly statement
 					} else if (MessageMember.IsArray && !MessageMember.IsNested) {
 						//TODO How can I check for a nested type without a /
-						Console.WriteLine ("Assuming it is an array type and NOT a nested type: " + LastLine);
+						Console.WriteLine ("Assuming "+ MessageMember.RosType + "  is an array type and NOT a nested type: " + LastLine);
 						//It's an array
 						if (!MessageMember.IsFixedSizeArray) {
 							//Unbounded array
@@ -109,7 +116,7 @@ namespace ROS2CSMessageGenerator
 						}
 
 					} else if(IsPrimitiveType(MessageMember.RosType)){
-						Console.WriteLine ("Assuming it is a primitve type: " + LastLine);
+						Console.WriteLine ("Assuming "+ MessageMember.RosType + "  is a primitve type: " + LastLine);
 						//It's a primitive type
 						string CsType = GetCsPrimitiveType (MessageMember.RosType);
 						MessageMember.MemberType = CsType;
@@ -146,6 +153,16 @@ namespace ROS2CSMessageGenerator
 		{
 			//We treat a string like an array
 			return Line.Contains ("[") && Line.Contains ("]") ;
+		}
+
+		/// <summary>
+		/// Checks if the given line specifies a bounded array.
+		/// </summary>
+		/// <returns><c>true</c>, if bounded array was ised, <c>false</c> otherwise.</returns>
+		/// <param name="Line">Line.</param>
+		public bool IsBoundedArray(string Line)
+		{
+			return IsArray(Line) && Line.Contains("<=");
 		}
 
 		/// <summary>
@@ -186,6 +203,9 @@ namespace ROS2CSMessageGenerator
 				int index_closing_bracket = Line.IndexOf ("]");
 				string number = Line.Substring (index_opening_bracket + 1, index_closing_bracket - index_opening_bracket - 1);
 
+				//Just ignore bounded arrays and make them fixed size arrays. //TODO does this work?
+				if (IsBoundedArray(Line))
+					number.Replace("<=", "");
 				//Check that we did extract something
 				if (number != "") {
 					//Init return value
