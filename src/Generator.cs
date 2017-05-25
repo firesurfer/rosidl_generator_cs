@@ -546,26 +546,22 @@ namespace ROS2CSMessageGenerator
 			WrapperClassString.AppendLine ("}");
 			ClassWasFinalized = true;
 		}
+
 		public string GetTypeSupportMessageFunctionName()
 		{
-			string func = "rosidl_typesupport_introspection_c_get_message__"+Namespace+"__msg__"+Name;
+            string func = "rosidl_typesupport_introspection_c__get_message_type_support_handle__" + Namespace+"__msg__"+Name;
 			return func;
 		}
+
 		public string GetTypeSupportServiceFunctionName()
 		{
-			
-
 			string dummyName = Name.Replace ("_", "");
 			dummyName = dummyName.Replace ("Request", "");
 			dummyName = dummyName.Replace ("Response", "");
-			string	func = "rosidl_typesupport_introspection_c_get_message__"+Namespace+"__srv__"+dummyName;
-
-
-
+			string	func = "rosidl_typesupport_introspection_c__get_service_type_support_handle__" + Namespace+"__srv__"+dummyName;
+            
 			return func;
 		}
-
-
 	}
 }
 
