@@ -120,6 +120,7 @@ namespace ROS2CSMessageGenerator
 				if (Path.GetExtension (item) == ".dll") {
 					try {
 						System.Reflection.AssemblyName testAssembly = System.Reflection.AssemblyName.GetAssemblyName (item);
+						Console.WriteLine(testAssembly.FullName);
 						cp.ReferencedAssemblies.Add (item);
 
 					} catch (Exception ex) {

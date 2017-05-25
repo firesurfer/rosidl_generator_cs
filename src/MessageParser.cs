@@ -81,7 +81,7 @@ namespace ROS2CSMessageGenerator
 						string CsType = NestedNamespace + ".msg." + NestedType + "_t";
 						//Fix in case the type is in the same namespace
 						if (CsType.StartsWith(".msg."))
-							CsType = CsType.Remove(0, 5);
+							CsType = CsType.Insert(0, Description.Namespace);
 						
 						MessageMember.MemberType = CsType;
 
