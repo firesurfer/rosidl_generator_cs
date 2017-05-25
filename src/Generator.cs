@@ -549,7 +549,7 @@ namespace ROS2CSMessageGenerator
 
 		public string GetTypeSupportMessageFunctionName()
 		{
-            string func = "rosidl_typesupport_introspection_c__get_message_type_support_handle__" + Namespace+"__msg__"+Name;
+            		string func = "rosidl_typesupport_introspection_c__get_message_type_support_handle__" + Namespace+"__msg__"+Name;
 			return func;
 		}
 
