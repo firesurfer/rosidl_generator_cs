@@ -49,11 +49,11 @@ namespace ROS2CSMessageGenerator
 			CodeAttributeDeclaration StructAttribute = new CodeAttributeDeclaration("StructLayout", new CodeAttributeArgument(new CodeFieldReferenceExpression(new CodeTypeReferenceExpression(typeof(System.Runtime.InteropServices.LayoutKind)), "Sequential")));
 			MessageStruct.CustomAttributes.Add(StructAttribute);
 			MessageStruct.TypeAttributes = TypeAttributes.Public;
-
+			CodeConstructor StructConstructor = AddStructConstructor(description);
 			//Add struct members
 			foreach (var item in description.Members)
 			{
-				AddStructMember(item);
+				AddStructMember(item, StructConstructor);
 			}
 
 			//Create an array wrapper for the struct
@@ -151,6 +151,20 @@ namespace ROS2CSMessageGenerator
 			return LastCompilationResults;
 		}
 		/// <summary>
+		/// Adds the struct constructor.
+		/// </summary>
+		/// <returns>The struct constructor.</returns>
+		/// <param name="description">Description.</param>
+		private CodeConstructor AddStructConstructor(MessageDescription description)
+		{
+			//Create constructor
+			CodeConstructor structConstructor = new CodeConstructor();
+			structConstructor.Attributes = MemberAttributes.Public;
+
+			MessageStruct.Members.Add(structConstructor);
+			return structConstructor;
+		}
+		/// <summary>
 		/// Adds the array struct members.
 		/// </summary>
 		/// <param name="description">Description.</param>
@@ -194,7 +208,7 @@ namespace ROS2CSMessageGenerator
 		/// Adds the given struct member to the struct.
 		/// </summary>
 		/// <param name="member">Member.</param>
-		private void AddStructMember(MessageMemberDescription member)
+		private void AddStructMember(MessageMemberDescription member, CodeConstructor constructor)
 		{
 			if (member.IsNested)
 			{
@@ -241,6 +255,19 @@ namespace ROS2CSMessageGenerator
 				memberField.Type = new CodeTypeReference(member.MemberType);
 				//Add the field to the struct
 				MessageStruct.Members.Add(memberField);
+				//Handling for DefaultValue
+				if (member.DefaultInitialisation != "")
+				{
+					//Parse for ints //TODO parse other types
+					int val;
+					bool success = int.TryParse(member.DefaultInitialisation, out val);
+					if (success)
+					{
+						CodeAssignStatement assignDefaultVal = new CodeAssignStatement(new CodeVariableReferenceExpression(member.Name), new CodePrimitiveExpression(val));
+						constructor.Statements.Add(assignDefaultVal);
+					}
+
+				}
 			}
 
 

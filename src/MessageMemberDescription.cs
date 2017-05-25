@@ -17,7 +17,7 @@ namespace ROS2CSMessageGenerator
 		public bool IsFixedSizeArray { get; set; }
 		public bool IsBoundedArray { get; set; }
 		public int FixedArraySize { get; set; }
-
+	
 		public MessageMemberDescription ()
 		{
 		}
