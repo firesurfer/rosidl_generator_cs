@@ -282,16 +282,17 @@ namespace ROS2CSMessageGenerator
 			string introspectionMethodName = "";
 			if (description.IsService)
 			{
-				string tempName = description.Name.Replace("_", "");
-				tempName = tempName.Replace("Request", "");
-				tempName = tempName.Replace("Response", "");
-				introspectionMethodName = "rosidl_typesupport_introspection_c_get_message__" + description.Namespace + "__srv__" + tempName;
+				//string tempName = description.Name.Replace("_", "");
+				//tempName = tempName.Replace("Request", "");
+				//tempName = tempName.Replace("Response", "");
+				introspectionMethodName = "rosidl_typesupport_introspection_c__get_message_type_support_handle__" + description.Namespace + "__srv__" + description.Name;
 			}
 			else
 			{
-				introspectionMethodName = "rosidl_typesupport_introspection_c_get_message__" + description.Namespace + "__msg__" + description.Name;
+
+				introspectionMethodName = " rosidl_typesupport_introspection_c__get_message_type_support_handle__" + description.Namespace + "__msg__" + description.Name;
 			}
-			introspectionMethod.Text = "        [DllImport (\"lib" + description.Namespace + "__rosidl_typesupport_introspection_c.so\")]\n" +
+			introspectionMethod.Text = "        [DllImport (\"lib" + description.Namespace + "__rosidl_typesupport_c.so\")]\n" +
 				"        public static extern IntPtr " + introspectionMethodName + "();";
 			MessageStruct.Members.Add(introspectionMethod);
 		}
