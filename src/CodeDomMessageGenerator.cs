@@ -49,11 +49,11 @@ namespace ROS2CSMessageGenerator
 			CodeAttributeDeclaration StructAttribute = new CodeAttributeDeclaration("StructLayout", new CodeAttributeArgument(new CodeFieldReferenceExpression(new CodeTypeReferenceExpression(typeof(System.Runtime.InteropServices.LayoutKind)), "Sequential")));
 			MessageStruct.CustomAttributes.Add(StructAttribute);
 			MessageStruct.TypeAttributes = TypeAttributes.Public;
-			CodeConstructor StructConstructor = AddStructConstructor(description);
+			//CodeConstructor StructConstructor = AddStructConstructor(description);
 			//Add struct members
 			foreach (var item in description.Members)
 			{
-				AddStructMember(item, StructConstructor);
+				AddStructMember(item);
 			}
 
 			//Create an array wrapper for the struct
@@ -208,7 +208,7 @@ namespace ROS2CSMessageGenerator
 		/// Adds the given struct member to the struct.
 		/// </summary>
 		/// <param name="member">Member.</param>
-		private void AddStructMember(MessageMemberDescription member, CodeConstructor constructor)
+		private void AddStructMember(MessageMemberDescription member)
 		{
 			if (member.IsNested)
 			{
@@ -259,13 +259,13 @@ namespace ROS2CSMessageGenerator
 				if (member.DefaultInitialisation != "")
 				{
 					//Parse for ints //TODO parse other types
-					int val;
+					/*int val;
 					bool success = int.TryParse(member.DefaultInitialisation, out val);
 					if (success)
 					{
 						CodeAssignStatement assignDefaultVal = new CodeAssignStatement(new CodeVariableReferenceExpression(member.Name), new CodePrimitiveExpression(val));
 						constructor.Statements.Add(assignDefaultVal);
-					}
+					}*/
 
 				}
 			}
