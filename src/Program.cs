@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.CodeDom.Compiler;
 using Microsoft.CSharp;
@@ -80,7 +80,13 @@ namespace ROS2CSMessageGenerator
 					return;
 				}
 				string classDir = args [1];
+                classDir = Path.GetFullPath(classDir);
+                Console.WriteLine(classDir);
+               
 				string assemblyPath = args [2];
+                assemblyPath = Path.GetFullPath(assemblyPath);
+                Console.WriteLine("Assembly Path: " + assemblyPath);
+              
 				if (!Directory.Exists (classDir)) {
 					Console.WriteLine ("Directory does not exist: " + classDir);
 					return;
@@ -104,18 +110,28 @@ namespace ROS2CSMessageGenerator
 		{
 
 			CompilerParameters cp = new CompilerParameters ();
-			cp.CompilerOptions += " /unsafe /warn";
+			cp.CompilerOptions += " /unsafe ";
 
 		
 			CSharpCodeProvider provider = new CSharpCodeProvider ();
 
 
 			string rclcsPath = Environment.GetEnvironmentVariable ("AMENT_PREFIX_PATH");
-			string firstPathElement = rclcsPath.Split (new char[]{ ':' }) [0];
+            Console.WriteLine("Ament Prefix Path: " + rclcsPath);
+            string firstPathElement = "";
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                 firstPathElement = rclcsPath.Split(new char[] { ':' })[0];
+            }
+            else
+            {
+                firstPathElement = rclcsPath.Split(new char[] { ';' })[0];
+            }
 			rclcsPath = firstPathElement;
 
 			string ros2libPath = Path.Combine (rclcsPath, "lib");
 			cp.ReferencedAssemblies.Add ("System.dll");
+            Console.WriteLine("ros2 libs path: " + ros2libPath);
 			foreach (var item in Directory.GetFiles(ros2libPath)) {
 				if (Path.GetExtension (item) == ".dll") {
 					try {
@@ -206,3 +222,4 @@ namespace ROS2CSMessageGenerator
 		}
 	}
 }
+
