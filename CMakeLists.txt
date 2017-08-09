@@ -20,7 +20,7 @@ add_assemblies(rosidl_generator_cs
     "Exe"
     COMPILER_ARGS
     "-main:ROS2CSMessageGenerator.MainClass"
-    REFERENCE_ASSEMBLIES
+    INCLUDE_ASSEMBLIES_DLL
     "System,System.Xml,System.Xml.Linq"
 )
 #add_custom_target(ros2cs_message_generator ALL
