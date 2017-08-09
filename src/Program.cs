@@ -118,33 +118,43 @@ namespace ROS2CSMessageGenerator
 
 			string rclcsPath = Environment.GetEnvironmentVariable ("AMENT_PREFIX_PATH");
             Console.WriteLine("Ament Prefix Path: " + rclcsPath);
-            string firstPathElement = "";
+            string[] pathElements;
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
-                 firstPathElement = rclcsPath.Split(new char[] { ':' })[0];
+                pathElements = rclcsPath.Split(new char[] { ':' });
             }
             else
             {
-                firstPathElement = rclcsPath.Split(new char[] { ';' })[0];
+                pathElements = rclcsPath.Split(new char[] { ';' });
             }
-			rclcsPath = firstPathElement;
+            //rclcsPath = firstPathElement;
+            cp.ReferencedAssemblies.Add("System.dll");
+            foreach (var pathElement in pathElements)
+            {
 
-			string ros2libPath = Path.Combine (rclcsPath, "lib");
-			cp.ReferencedAssemblies.Add ("System.dll");
-            Console.WriteLine("ros2 libs path: " + ros2libPath);
-			foreach (var item in Directory.GetFiles(ros2libPath)) {
-				if (Path.GetExtension (item) == ".dll") {
-					try {
-						System.Reflection.AssemblyName testAssembly = System.Reflection.AssemblyName.GetAssemblyName (item);
-						Console.WriteLine(testAssembly.FullName);
-						cp.ReferencedAssemblies.Add (item);
 
-					} catch (Exception ex) {
-						
-					}
+                string ros2libPath = Path.Combine(pathElement, "lib");
+              
+                Console.WriteLine("ros2 libs path: " + ros2libPath);
+                foreach (var item in Directory.GetFiles(ros2libPath))
+                {
+                    if (Path.GetExtension(item) == ".dll")
+                    {
+                        try
+                        {
+                            System.Reflection.AssemblyName testAssembly = System.Reflection.AssemblyName.GetAssemblyName(item);
+                            Console.WriteLine(testAssembly.FullName);
+                            cp.ReferencedAssemblies.Add(item);
 
-				}
-			}
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+
+                    }
+                }
+            }
 
 			cp.GenerateExecutable = false;
 			cp.OutputAssembly = AssemblyPath;
