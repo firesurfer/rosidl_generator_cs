@@ -82,10 +82,14 @@ endif()
 ament_package(
   CONFIG_EXTRAS "rosidl_generator_cs-extras.cmake.in"
 )
-install(FILES ${CMAKE_BINARY_DIR}/rosidl_generator_cs.exe DESTINATION lib/rosidl_generator_cs)
-
+if(NOT WIN32)
+	install(FILES ${CMAKE_BINARY_DIR}/rosidl_generator_cs.exe DESTINATION lib/rosidl_generator_cs)
+else()
+	install(FILES ${CMAKE_BINARY_DIR}/bin/x64/Release/rosidl_generator_cs.exe DESTINATION lib/rosidl_generator_cs)
+endif()
 #install_assemblies(ros2cs_message_generator COPY_DEPENDENCIES DESTINATION lib/rosidl_generator_cs)
 install(
   DIRECTORY cmake 
   DESTINATION share/${PROJECT_NAME}
 )
+

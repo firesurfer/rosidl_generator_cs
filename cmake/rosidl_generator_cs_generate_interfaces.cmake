@@ -25,13 +25,16 @@ foreach(_idl_file ${rosidl_generate_interfaces_cs_IDL_FILES})
   get_filename_component(_msg_name "${_idl_file}" NAME_WE)
   get_filename_component(_extension "${_idl_file}" EXT)
   string_camel_case_to_lower_case_underscore("${_msg_name}" _header_name)
-  
+  set(EXE_COMMAND "")
+  if(NOT WIN32)
+	set(EXE_COMMAND "mono")
+   endif()
   if(_extension STREQUAL ".msg" OR _extension STREQUAL ".srv")
 	if(BUILD_TESTING)
       string(RANDOM RND_VAL)
 	  add_custom_target(
 	    "generate_cs_messages_${_msg_name}_${RND_VAL}" ALL
-	    COMMAND mono ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
+	    COMMAND ${EXE_COMMAND} ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
 	    COMMENT "Generating CS code for ${_msg_name}"
 	    DEPENDS ros2cs_message_generator
 	    VERBATIM
@@ -41,7 +44,7 @@ foreach(_idl_file ${rosidl_generate_interfaces_cs_IDL_FILES})
       string(RANDOM RND_VAL)
 	  add_custom_target(
 	    "generate_cs_messages_${_msg_name}_${RND_VAL}" ALL
-	    COMMAND mono ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
+	    COMMAND ${EXE_COMMAND} ${rosidl_generator_cs_BIN} -m ${_idl_file} ${PROJECT_NAME} ${_output_path}
 	    COMMENT "Generating CS code for ${_msg_name}"
 	    VERBATIM
 	  )
@@ -55,7 +58,7 @@ endforeach()
 
 add_custom_target(
     "compile_cs_messages" ALL
-    COMMAND mono ${rosidl_generator_cs_BIN} -c ${_output_path} ${_output_path}/${PROJECT_NAME}.dll
+    COMMAND ${EXE_COMMAND} ${rosidl_generator_cs_BIN} -c ${_output_path} ${_output_path}/${PROJECT_NAME}.dll
     DEPENDS ${_message_targets}
     COMMENT "Compiling generated CS Code for ${PROJECT_NAME}"
     VERBATIM
@@ -69,5 +72,6 @@ add_custom_target(
 	"lib/"
     )
  endif()
+
 
 
