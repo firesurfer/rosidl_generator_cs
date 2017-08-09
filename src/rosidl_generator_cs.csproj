@@ -5,12 +5,12 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D6757DA8-5EFE-4C0F-B1BB-D9FC535B22BA}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ROS2CSMessageGenerator</RootNamespace>
+    <RootNamespace>rosidl_generator_cs</RootNamespace>
     <AssemblyName>ROS2CSMessageGenerator</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <StartupObject>ROS2CSMessageGenerator.MainClass</StartupObject>
+    <StartupObject>rosidl_generator_cs.MainClass</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

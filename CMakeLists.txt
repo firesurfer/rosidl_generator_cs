@@ -19,7 +19,7 @@ add_assemblies(rosidl_generator_cs
     OUTPUT_TYPE 
     "Exe"
     COMPILER_ARGS
-    "-main:ROS2CSMessageGenerator.MainClass"
+    "-main:rosidl_generator_cs.MainClass"
     INCLUDE_ASSEMBLIES_DLL
     "System,System.Xml,System.Xml.Linq"
 )

@@ -5,7 +5,7 @@ using Microsoft.CSharp;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace ROS2CSMessageGenerator
+namespace rosidl_generator_cs
 {
 	class MainClass
 	{

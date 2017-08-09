@@ -6,7 +6,7 @@ using System.CodeDom;
 using System.CodeDom.Compiler;
 using Microsoft.CSharp;
 
-namespace ROS2CSMessageGenerator
+namespace rosidl_generator_cs
 {
 	public class CodeDomMessageGenerator : IMessageCodeGenerator
 	{

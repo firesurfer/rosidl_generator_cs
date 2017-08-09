@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ROS2CSMessageGenerator
+namespace rosidl_generator_cs
 {
 	/// <summary>
 	/// Describes a parsed message member

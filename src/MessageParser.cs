@@ -2,7 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 
-namespace ROS2CSMessageGenerator
+namespace rosidl_generator_cs
 {
 	public class MessageParser
 	{

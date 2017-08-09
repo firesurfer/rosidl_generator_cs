@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ROS2CSMessageGenerator", "ROS2CSMessageGenerator.csproj", "{D6757DA8-5EFE-4C0F-B1BB-D9FC535B22BA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rosidl_generator_cs", "rosidl_generator_cs.csproj", "{D6757DA8-5EFE-4C0F-B1BB-D9FC535B22BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

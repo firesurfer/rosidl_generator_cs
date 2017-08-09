@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ROS2CSMessageGenerator
+namespace rosidl_generator_cs
 {
 	public interface IMessageCodeGenerator
 	{
