@@ -88,11 +88,12 @@ namespace rosidl_generator_cs
 					PrintHelp ();
 					return;
 				}
+            
 				//The directory the .cs files lay in
 				string classDir = args [1];
 				//This converts the / to \ on windows and leaves them / on linux
 				classDir = Path.GetFullPath (classDir);
-				Console.WriteLine (classDir);
+				Console.WriteLine ("Input directory: " + classDir);
                
 				//The path we want to place the resulting assembly in
 				string assemblyPath = args [2];
@@ -132,6 +133,11 @@ namespace rosidl_generator_cs
 			cp.CompilerOptions += " /unsafe ";
 
 			string AssemblyName = Path.GetFileNameWithoutExtension (AssemblyPath);
+
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("Compiling: " + AssemblyName);
+            Console.ResetColor();
+
 			CSharpCodeProvider provider = new CSharpCodeProvider ();
 
 			//Retrieve search paths from the AMENT_PREFIX_PATH
@@ -152,28 +158,45 @@ namespace rosidl_generator_cs
 			//For all elements in the AMENT_PREFIX_PATH
 			foreach (var pathElement in pathElements) {
 
-				//Look into the lib folder
-				//TODO on windows look into bin folder?
-				string ros2libPath = Path.Combine (pathElement, "lib");
-   				
-				Console.WriteLine ("ros2 libs path: " + ros2libPath);
-				//Check the files
-				foreach (var item in Directory.GetFiles(ros2libPath)) {
-					//A dll could be an assembly
-					if (Path.GetExtension (item) == ".dll") {
-						try {
-							//Try loading the assembly -> if it works it is an assembly if not it's just normal dll
-							System.Reflection.AssemblyName testAssembly = System.Reflection.AssemblyName.GetAssemblyName (item);
-							Console.WriteLine (testAssembly.FullName);
-							if(testAssembly.Name != AssemblyName)
-								cp.ReferencedAssemblies.Add (item);
 
-						} catch (Exception ex) {
-
+                Action<string> searchPath = (string path) => {
+					foreach (var item in Directory.GetFiles(path))
+					{
+						//A dll could be an assembly
+						if (Path.GetExtension(item) == ".dll")
+						{
+							try
+							{
+								//Try loading the assembly -> if it works it is an assembly if not it's just normal dll
+								System.Reflection.AssemblyName testAssembly = System.Reflection.AssemblyName.GetAssemblyName(item);
+								Console.WriteLine(testAssembly.FullName);
+                                if (testAssembly.Name != AssemblyName)
+                                    cp.ReferencedAssemblies.Add(item);
+							}
+							catch (Exception ex)
+							{
+                                //Ignore warning...
+                                ex.ToString();
+							}
 						}
-
 					}
-				}
+
+                };
+
+				//Look into the lib folder
+				string ros2libPath = Path.Combine(pathElement, "lib");
+
+				Console.WriteLine("ros2 libs path: " + ros2libPath);
+                //Check the files
+                searchPath(ros2libPath); //Search lib folder
+                if(Environment.OSVersion.Platform == PlatformID.Win32NT)
+                {
+                    //on windows search bin folder
+                    ros2libPath = Path.Combine(pathElement, "bin");
+                    searchPath(ros2libPath);
+                }
+
+
 			}
 			//messages allways should result in a library
 			cp.GenerateExecutable = false;
