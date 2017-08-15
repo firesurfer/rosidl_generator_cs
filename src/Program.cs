@@ -128,6 +128,7 @@ namespace rosidl_generator_cs
 		{
 
 			CompilerParameters cp = new CompilerParameters ();
+
 			//We need to allow unsafe code
 			cp.CompilerOptions += " /unsafe ";
 

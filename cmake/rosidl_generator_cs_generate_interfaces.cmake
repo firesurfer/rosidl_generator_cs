@@ -64,6 +64,7 @@ add_custom_target(
     VERBATIM
  )
  if(NOT rosidl_generate_interfaces_SKIP_INSTALL)
+  if(NOT WIN32)
   install(
     FILES 
 	${_output_path}/${PROJECT_NAME}.dll 
@@ -71,6 +72,15 @@ add_custom_target(
     DESTINATION 
 	"lib/"
     )
+	else()
+	install(
+    FILES 
+	${_output_path}/${PROJECT_NAME}.dll 
+	#$ENV{AMENT_PREFIX_PATH}/lib/rclcs.dll
+    DESTINATION 
+	"bin/"
+    )
+	endif()
  endif()
 
 
