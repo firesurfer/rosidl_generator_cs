@@ -10,25 +10,13 @@ find_package(ament_cmake_python REQUIRED)
 find_package(dotnet_cmake_module REQUIRED)
 find_package(DotNETExtra MODULE)
 
-file(GLOB_RECURSE CS_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cs)
-    
-add_assemblies(rosidl_generator_cs
-    ${CS_SOURCES}
-    OUTPUT_NAME
-    "rosidl_generator_cs"
-    OUTPUT_TYPE 
-    "Exe"
-    COMPILER_ARGS
-    "-main:rosidl_generator_cs.MainClass"
-    INCLUDE_ASSEMBLIES_DLL
-    "System,System.Xml,System.Xml.Linq"
+
+add_msbuild(
+    rosidl_generator_cs
+    EXECUTABLE
+    CSPROJ
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/rosidl_generator_cs.csproj
 )
-#add_custom_target(ros2cs_message_generator ALL
-#	COMMAND 
-#	"xbuild" ROS2CSMessageGenerator.csproj /property:OutputPath=${CMAKE_BINARY_DIR} /property:AssemblyName=rosidl_generator_cs 
-#	WORKING_DIRECTORY
-#	${CMAKE_SOURCE_DIR}/src
-#)
 
 ament_export_dependencies(rosidl_cmake)
 
@@ -82,12 +70,9 @@ endif()
 ament_package(
   CONFIG_EXTRAS "rosidl_generator_cs-extras.cmake.in"
 )
-if(NOT WIN32)
-	install(FILES ${CMAKE_BINARY_DIR}/rosidl_generator_cs.exe DESTINATION lib/rosidl_generator_cs)
-else()
-	install(FILES ${CMAKE_BINARY_DIR}/bin/x64/Release/rosidl_generator_cs.exe DESTINATION lib/rosidl_generator_cs)
-endif()
-#install_assemblies(ros2cs_message_generator COPY_DEPENDENCIES DESTINATION lib/rosidl_generator_cs)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/rosidl_generator_cs.exe DESTINATION lib/rosidl_generator_cs)
+#install_assemblies(rosidl_generator_cs  DESTINATION lib/rosidl_generator_cs)
 install(
   DIRECTORY cmake 
   DESTINATION share/${PROJECT_NAME}

@@ -36,7 +36,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="rclcs">
-      <HintPath>..\..\..\..\..\install\lib\rclcs.dll</HintPath>
+      <HintPath>$(AMENT_PREFIX_PATH)\lib\rclcs.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
