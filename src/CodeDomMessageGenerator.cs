@@ -295,7 +295,7 @@ namespace rosidl_generator_cs
 				introspectionMethod.Text = "        [DllImport (\"lib" + description.Namespace + "__rosidl_typesupport_c.so\")]\n" +
 				"        public static extern IntPtr " + introspectionMethodName + "();";
 			} else if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
-				introspectionMethod.Text = "        [DllImport (@\"" + description.Namespace + "__rosidl_typesupport_c.dll\")]\n" +
+				introspectionMethod.Text = "        [DllImport (@\"" + description.Namespace + "__rosidl_typesupport_introspection_c.dll\")]\n" +
 					"        public static extern IntPtr " + introspectionMethodName + "();";
 			}
 			MessageStruct.Members.Add(introspectionMethod);
