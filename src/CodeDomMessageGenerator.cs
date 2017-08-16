@@ -291,8 +291,13 @@ namespace rosidl_generator_cs
 			{
 				introspectionMethodName = " rosidl_typesupport_introspection_c__get_message_type_support_handle__" + description.Namespace + "__msg__" + description.Name;
 			}
-			introspectionMethod.Text = "        [DllImport (\"lib" + description.Namespace + "__rosidl_typesupport_c.so\")]\n" +
+			if (Environment.OSVersion.Platform == PlatformID.Unix) {
+				introspectionMethod.Text = "        [DllImport (\"lib" + description.Namespace + "__rosidl_typesupport_c.so\")]\n" +
 				"        public static extern IntPtr " + introspectionMethodName + "();";
+			} else if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+				introspectionMethod.Text = "        [DllImport (" + description.Namespace + "__rosidl_typesupport_c.dll\")]\n" +
+					"        public static extern IntPtr " + introspectionMethodName + "();";
+			}
 			MessageStruct.Members.Add(introspectionMethod);
 		}
 		/// <summary>
