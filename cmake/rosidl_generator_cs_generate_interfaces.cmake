@@ -39,7 +39,7 @@ foreach(_idl_file ${rosidl_generate_interfaces_cs_IDL_FILES})
 	    DEPENDS ros2cs_message_generator
 	    VERBATIM
 	  )
-	list(APPEND _message_targets "generate_cs_messages_${_msg_name}")
+	list(APPEND _message_targets "generate_cs_messages_${_msg_name}_${RND_VAL}")
 	else()
       string(RANDOM RND_VAL)
 	  add_custom_target(
@@ -48,6 +48,7 @@ foreach(_idl_file ${rosidl_generate_interfaces_cs_IDL_FILES})
 	    COMMENT "Generating CS code for ${_msg_name}"
 	    VERBATIM
 	  )
+      list(APPEND _message_targets "generate_cs_messages_${_msg_name}_${RND_VAL}")
 	endif()
   else()
     list(REMOVE_ITEM rosidl_generate_interfaces_cs_IDL_FILES ${_idl_file})
